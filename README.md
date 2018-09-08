@@ -21,7 +21,7 @@ No output needed
 #### Errors
 Unknown currency
 
-###Withdraw
+### Withdraw
 Withdraw funds from the users wallet.
 
 #### Input
