@@ -76,13 +76,15 @@ public class WalletServer {
         public void deposit(DepositRequest request, StreamObserver<DepositResponse> responseObserver) {
             Float balanceToADD = request.getAmount();
             Float currentBalance = 0F;
+            logger.info("Server Recieved Request forUserID: " + request.getUserID() + " Amount: " + balanceToADD);
 
             if (wallets.containsKey(request.getUserID())) {
                 currentBalance = wallets.get(request.getUserID());
             }
             Float newBalance = Float.sum(currentBalance, balanceToADD);
             wallets.put(request.getUserID(), newBalance);
-            logger.info("Wallet Updated Succesfully,UserID: " + request.getUserID() + "New Amount: " + newBalance);
+            logger.info(
+                    "Server Updated Wallet Succesfully,UserID: " + request.getUserID() + "New Amount: " + newBalance);
             responseObserver
                     .onNext(DepositResponse.newBuilder().setUserID(request.getUserID()).setAmount(newBalance).build());
             responseObserver.onCompleted();

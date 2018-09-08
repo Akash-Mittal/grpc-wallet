@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>wallet</name>
-	<comment>Project wallet created by Buildship.</comment>
+	<name>grpc-wallet</name>
+	<comment>Project grpc-wallet created by Buildship.</comment>
 	<projects>
 	</projects>
 	<buildSpec>
