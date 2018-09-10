@@ -2,13 +2,18 @@ package com.betpawa.wallet.client;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
+import com.betpawa.wallet.BalanceRequest;
+import com.betpawa.wallet.BalanceResponse;
 import com.betpawa.wallet.CURRENCY;
 import com.betpawa.wallet.DepositRequest;
 import com.betpawa.wallet.DepositResponse;
 import com.betpawa.wallet.WalletServiceGrpc;
 import com.betpawa.wallet.WalletServiceGrpc.WalletServiceBlockingStub;
+import com.betpawa.wallet.WithdrawRequest;
+import com.betpawa.wallet.WithdrawResponse;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -18,6 +23,7 @@ public class WalletClient {
 
     private final ManagedChannel channel;
     private final WalletServiceBlockingStub blockingStub;
+    private AtomicLong rpcCount = new AtomicLong();
 
     /** Construct client for accessing RouteGuide server at {@code host:port}. */
     public WalletClient(String host, int port) {
@@ -30,6 +36,11 @@ public class WalletClient {
         blockingStub = WalletServiceGrpc.newBlockingStub(channel);
     }
 
+    public WalletClient(ManagedChannel channel) {
+        this.channel = channel;
+        blockingStub = WalletServiceGrpc.newBlockingStub(channel);
+    }
+
     public void shutdown() throws InterruptedException {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
@@ -38,19 +49,27 @@ public class WalletClient {
         logger.info("Client Issued Request to Deposit " + amount + " " + currency.name() + " For userID " + userID);
         DepositResponse depositResponse = blockingStub
                 .deposit(DepositRequest.newBuilder().setAmount(amount).setUserID(userID).setCurrency(currency).build());
-        if (!Objects.isNull(depositResponse))
-            logger.info("Client Issued Request Success ");
-
-    }
-
-    public static void main(String[] args) throws InterruptedException {
-        WalletClient walletClient = new WalletClient("localhost", 8980);
-        try {
-            walletClient.deposit(100F, 1, CURRENCY.USD);
-            walletClient.deposit(100F, 1, CURRENCY.USD);
-            walletClient.deposit(100F, 1, CURRENCY.USD);
-        } finally {
-            walletClient.shutdown();
+        if (!Objects.isNull(depositResponse)) {
+            logger.info("Client Issued Request Success");
+            rpcCount.incrementAndGet();
         }
+
     }
+
+    public WithdrawResponse withdraw(int userID, Float amount, CURRENCY currency) {
+        rpcCount.incrementAndGet();
+
+        return blockingStub.withdraw(
+                WithdrawRequest.newBuilder().setUserID(userID).setAmount(amount).setCurrency(currency).build());
+    }
+
+    public BalanceResponse balance(int userID) {
+        rpcCount.incrementAndGet();
+        return blockingStub.balance(BalanceRequest.newBuilder().setUserID(userID).build());
+    }
+
+    public AtomicLong getRpcCount() {
+        return rpcCount;
+    }
+
 }
