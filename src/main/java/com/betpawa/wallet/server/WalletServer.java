@@ -2,12 +2,19 @@ package com.betpawa.wallet.server;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
+import com.betpawa.wallet.BalanceRequest;
+import com.betpawa.wallet.BalanceResponse;
 import com.betpawa.wallet.DepositRequest;
 import com.betpawa.wallet.DepositResponse;
+import com.betpawa.wallet.StatusMessage;
 import com.betpawa.wallet.WalletServiceGrpc.WalletServiceImplBase;
+import com.betpawa.wallet.WithdrawRequest;
+import com.betpawa.wallet.WithdrawResponse;
+import com.betpawa.wallet.exception.WithDrawException;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
@@ -73,23 +80,68 @@ public class WalletServer {
         private final Map<Integer, Float> wallets = new ConcurrentHashMap<>();
 
         @Override
-        public void deposit(DepositRequest request, StreamObserver<DepositResponse> responseObserver) {
-            Float balanceToADD = request.getAmount();
+        public void deposit(DepositRequest depostiRequest, StreamObserver<DepositResponse> responseObserver) {
+            Float balanceToADD = depostiRequest.getAmount();
             Float currentBalance = 0F;
-            logger.info("Server Recieved Request forUserID: " + request.getUserID() + " Amount: " + balanceToADD);
+            logger.info(
+                    "Server Recieved Request forUserID: " + depostiRequest.getUserID() + " Amount: " + balanceToADD);
 
-            if (wallets.containsKey(request.getUserID())) {
-                currentBalance = wallets.get(request.getUserID());
+            if (userExists(depostiRequest.getUserID())) {
+                currentBalance = wallets.get(depostiRequest.getUserID());
             }
             Float newBalance = Float.sum(currentBalance, balanceToADD);
-            wallets.put(request.getUserID(), newBalance);
-            logger.info(
-                    "Server Updated Wallet Succesfully,UserID: " + request.getUserID() + "New Amount: " + newBalance);
-            responseObserver
-                    .onNext(DepositResponse.newBuilder().setUserID(request.getUserID()).setAmount(newBalance).build());
+            wallets.put(depostiRequest.getUserID(), newBalance);
+            logger.info("Server Updated Wallet Succesfully,UserID: " + depostiRequest.getUserID() + "New Amount: "
+                    + newBalance);
+            responseObserver.onNext(
+                    DepositResponse.newBuilder().setUserID(depostiRequest.getUserID()).setAmount(newBalance).build());
             responseObserver.onCompleted();
 
         }
 
+        @Override
+        public void withdraw(WithdrawRequest request, StreamObserver<WithdrawResponse> responseObserver) {
+            if (!Objects.isNull(request)) {
+                if (userExists(request.getUserID())) {
+                    Float balanceToWithdraw = request.getAmount();
+                    Float existingBalance = wallets.get(request.getUserID());
+                    if (existingBalance.compareTo(balanceToWithdraw) >= 0) {
+                        if (wallets.replace(request.getUserID(), existingBalance,
+                                existingBalance - balanceToWithdraw)) {
+                            responseObserver.onNext(WithdrawResponse.newBuilder().build());
+                            responseObserver.onCompleted();
+                        }
+                    } else {
+                        responseObserver.onError(new WithDrawException(StatusMessage.INSUFFICIENT_BALANCE));
+                    }
+                } else {
+                    responseObserver.onError(new WithDrawException(StatusMessage.USER_DOES_NOT_EXIST));
+                }
+
+            } else {
+                responseObserver.onError(new WithDrawException(StatusMessage.INVALID_ARGUMENTS));
+            }
+
+        }
+
+        @Override
+        public void balance(BalanceRequest request, StreamObserver<BalanceResponse> responseObserver) {
+            if (!Objects.isNull(request)) {
+                if (userExists(request.getUserID())) {
+                    responseObserver
+                            .onNext(BalanceResponse.newBuilder().setAmount(wallets.get(request.getUserID())).build());
+                    responseObserver.onCompleted();
+                }
+            }
+        }
+
+        private boolean userExists(int userID) {
+            boolean exists = false;
+            if (wallets.containsKey(userID)) {
+                exists = true;
+            }
+            return exists;
+        }
     }
+
 }
