@@ -1,15 +1,14 @@
 package com.betpawa.wallet.client;
 
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.betpawa.wallet.BalanceRequest;
 import com.betpawa.wallet.BalanceResponse;
 import com.betpawa.wallet.CURRENCY;
 import com.betpawa.wallet.DepositRequest;
-import com.betpawa.wallet.DepositResponse;
 import com.betpawa.wallet.WalletServiceGrpc;
 import com.betpawa.wallet.WalletServiceGrpc.WalletServiceBlockingStub;
 import com.betpawa.wallet.WithdrawRequest;
@@ -17,10 +16,10 @@ import com.betpawa.wallet.WithdrawResponse;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.StatusRuntimeException;
 
 public class WalletClient {
     private static final Logger logger = Logger.getLogger(WalletClient.class.getName());
-
     private final ManagedChannel channel;
     private final WalletServiceBlockingStub blockingStub;
     private AtomicLong rpcCount = new AtomicLong();
@@ -46,26 +45,42 @@ public class WalletClient {
     }
 
     public void deposit(float amount, int userID, CURRENCY currency) {
-        logger.info("Client Issued Request to Deposit " + amount + " " + currency.name() + " For userID " + userID);
-        DepositResponse depositResponse = blockingStub
-                .deposit(DepositRequest.newBuilder().setAmount(amount).setUserID(userID).setCurrency(currency).build());
-        if (!Objects.isNull(depositResponse)) {
-            logger.info("Client Issued Request Success");
-            rpcCount.incrementAndGet();
+        try {
+
+            blockingStub.deposit(
+                    DepositRequest.newBuilder().setAmount(amount).setUserID(userID).setCurrency(currency).build());
+        } catch (StatusRuntimeException e) {
+            logger.log(Level.WARNING, e.getStatus().getDescription());
         }
 
     }
 
     public WithdrawResponse withdraw(int userID, Float amount, CURRENCY currency) {
-        rpcCount.incrementAndGet();
+        WithdrawResponse withdrawResponse = null;
+        try {
+            withdrawResponse = blockingStub.withdraw(
+                    WithdrawRequest.newBuilder().setUserID(userID).setAmount(amount).setCurrency(currency).build());
+            rpcCount.incrementAndGet();
 
-        return blockingStub.withdraw(
-                WithdrawRequest.newBuilder().setUserID(userID).setAmount(amount).setCurrency(currency).build());
+        } catch (StatusRuntimeException e) {
+            logger.log(Level.WARNING, e.getStatus().getDescription());
+        }
+        return withdrawResponse;
     }
 
     public BalanceResponse balance(int userID) {
         rpcCount.incrementAndGet();
-        return blockingStub.balance(BalanceRequest.newBuilder().setUserID(userID).build());
+        BalanceResponse balanceResponse = null;
+        try {
+
+            balanceResponse = blockingStub.balance(BalanceRequest.newBuilder().setUserID(userID).build());
+            rpcCount.incrementAndGet();
+
+        } catch (StatusRuntimeException e) {
+            logger.log(Level.WARNING, e.getStatus().getDescription());
+        }
+        return balanceResponse;
+
     }
 
     public AtomicLong getRpcCount() {

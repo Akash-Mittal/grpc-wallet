@@ -1,11 +1,11 @@
 package com.betpawa.wallet.app;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.betpawa.wallet.CURRENCY;
@@ -72,11 +72,14 @@ public class WalletApp {
             WalletClient client = new WalletClient(channel);
             logger.info("Starting");
             scheduler.schedule(() -> done.set(true), DURATION_SECONDS, TimeUnit.SECONDS);
-            while (!done.get()) {
-                RoundA(client);
+            while (true) {
+                // RoundA(client);
+                ExecutorService executorService = Executors.newFixedThreadPool(5);
+                executorService.execute(new Exec(client));
+
             }
-            double qps = client.getRpcCount().longValue() / DURATION_SECONDS;
-            logger.log(Level.INFO, "Did {0} RPCs/s", new Object[] { qps });
+            // double qps = client.getRpcCount().longValue() / DURATION_SECONDS;
+            // logger.log(Level.INFO, "Did {0} RPCs/s", new Object[] { qps });
         } finally {
             scheduler.shutdownNow();
             channel.shutdownNow();
@@ -93,4 +96,32 @@ public class WalletApp {
         client.withdraw(1, 100F, CURRENCY.USD);
     }
 
+}
+
+class Exec extends Thread {
+    private WalletClient client;
+
+    public Exec(WalletClient client) {
+        super();
+        this.client = client;
+    }
+
+    @Override
+    public void run() {
+        client.deposit(100F, 1, CURRENCY.USD);
+        client.withdraw(1, 200F, CURRENCY.USD);
+        client.deposit(100F, 1, CURRENCY.EUR);
+        client.balance(1);
+        client.withdraw(1, 100F, CURRENCY.USD);
+        client.balance(1);
+        client.withdraw(1, 100F, CURRENCY.USD);
+    }
+
+    public WalletClient getClient() {
+        return client;
+    }
+
+    public void setClient(WalletClient client) {
+        this.client = client;
+    }
 }

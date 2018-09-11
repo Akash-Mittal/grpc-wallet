@@ -1,7 +1,7 @@
 package com.betpawa.wallet.service;
 
-import java.util.Hashtable;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,7 +21,7 @@ import io.grpc.stub.StreamObserver;
 public class WalletService extends WalletServiceImplBase {
     private static final Logger logger = Logger.getLogger(WalletService.class.getName());
 
-    private final Map<Integer, Float> wallets = new Hashtable<Integer, Float>();
+    private final Map<Integer, Float> wallets = new ConcurrentHashMap<Integer, Float>();
 
     @Override
     public void deposit(DepositRequest depositRequest, StreamObserver<DepositResponse> responseObserver) {

@@ -62,13 +62,4 @@ sourceSets {
     }
 }
 
-apply plugin: 'application'
 
-startScripts.enabled = false
-
-task routeGuideServer(type: CreateStartScripts) {
-    mainClassName = 'io.grpc.examples.routeguide.RouteGuideServer'
-    applicationName = 'route-guide-server'
-    outputDir = new File(project.buildDir, 'tmp')
-    classpath = jar.outputs.files + project.configurations.runtime
-}
