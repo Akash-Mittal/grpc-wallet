@@ -59,13 +59,20 @@ public class WalletServerTest {
         DepositResponse depositResponse = stub
                 .deposit(DepositRequest.newBuilder().setUserID(userID).setAmount(new Float(amount)).build());
         assertEquals(depositResponse.getAmount(), (Float.sum(amount, 0F)), 0F);
+        assertEquals(depositResponse.getUserID(), userID);
+        assertEquals(depositResponse.getCurrency(), CURRENCY.USD);
+
         depositResponse = stub
                 .deposit(DepositRequest.newBuilder().setUserID(userID).setAmount(new Float(amount)).build());
         assertEquals(depositResponse.getAmount(), amount * 2.0, 0F);
+        assertEquals(depositResponse.getUserID(), userID);
+        assertEquals(depositResponse.getCurrency(), CURRENCY.USD);
 
         depositResponse = stub
                 .deposit(DepositRequest.newBuilder().setUserID(userID).setAmount(new Float(amount)).build());
         assertEquals(depositResponse.getAmount(), amount * 3.0, 0F);
+        assertEquals(depositResponse.getUserID(), userID);
+        assertEquals(depositResponse.getCurrency(), CURRENCY.USD);
 
     }
 
