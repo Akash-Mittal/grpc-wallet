@@ -1,7 +1,6 @@
 package com.betpawa.wallet.app;
 
 import java.io.IOException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -72,15 +71,13 @@ public class WalletApp {
             WalletClient client = new WalletClient(channel);
             logger.info("Starting");
             scheduler.schedule(() -> done.set(true), DURATION_SECONDS, TimeUnit.SECONDS);
-            while (true) {
-                // RoundA(client);
-                ExecutorService executorService = Executors.newFixedThreadPool(5);
-                executorService.execute(new Exec(client));
-
+            while (!done.get()) {
+                RoundA(client);
             }
             // double qps = client.getRpcCount().longValue() / DURATION_SECONDS;
             // logger.log(Level.INFO, "Did {0} RPCs/s", new Object[] { qps });
         } finally {
+
             scheduler.shutdownNow();
             channel.shutdownNow();
         }
