@@ -5,7 +5,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.betpawa.wallet.CURRENCY;
 import com.betpawa.wallet.client.WalletClient;
@@ -17,9 +19,9 @@ import io.grpc.Server;
 import io.grpc.ServerBuilder;
 
 public class WalletApp {
-    private static final Logger logger = Logger.getLogger(WalletApp.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(WalletApp.class);
 
-    private static final long DURATION_SECONDS = 60;
+    private static final long DURATION_SECONDS = 1;
 
     private Server server;
     private ManagedChannel channel;
@@ -74,8 +76,8 @@ public class WalletApp {
             while (!done.get()) {
                 RoundA(client);
             }
-            // double qps = client.getRpcCount().longValue() / DURATION_SECONDS;
-            // logger.log(Level.INFO, "Did {0} RPCs/s", new Object[] { qps });
+            double qps = client.getRpcCount().longValue() / DURATION_SECONDS;
+            logger.info("Did {0} RPCs/s", new Object[] { qps });
         } finally {
 
             scheduler.shutdownNow();

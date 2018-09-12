@@ -2,8 +2,9 @@ package com.betpawa.wallet.service;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.betpawa.wallet.BalanceRequest;
 import com.betpawa.wallet.BalanceResponse;
@@ -19,7 +20,7 @@ import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 
 public class WalletService extends WalletServiceImplBase {
-    private static final Logger logger = Logger.getLogger(WalletService.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(WalletService.class);
 
     private final Map<Integer, Float> wallets = new ConcurrentHashMap<Integer, Float>();
 
@@ -28,20 +29,21 @@ public class WalletService extends WalletServiceImplBase {
         Float balanceToADD = depositRequest.getAmount();
         if (checkAmountGreaterThanZero(balanceToADD)) {
             Float currentBalance = 0F;
-            logger.info(
-                    "Server Recieved Request forUserID: " + depositRequest.getUserID() + " Amount: " + balanceToADD);
+            logger.info("Request Recieved for UserID:{} For Amount:{}{} ", depositRequest.getUserID(),
+                    depositRequest.getAmount(), depositRequest.getCurrency());
 
             if (userExists(depositRequest.getUserID())) {
                 currentBalance = wallets.get(depositRequest.getUserID());
             }
             Float newBalance = Float.sum(currentBalance, balanceToADD);
             wallets.put(depositRequest.getUserID(), newBalance);
-            logger.info("Server Updated Wallet Succesfully,UserID: " + depositRequest.getUserID() + " New Amount: "
-                    + newBalance);
             responseObserver.onNext(
                     DepositResponse.newBuilder().setUserID(depositRequest.getUserID()).setAmount(newBalance).build());
             responseObserver.onCompleted();
+            logger.info("Wallet Updated SuccessFully New Balance:", newBalance);
+
         } else {
+            logger.warn(StatusMessage.AMOUNT_SHOULD_BE_GREATER_THAN_ZERO.name());
             responseObserver.onError(new StatusRuntimeException(Status.FAILED_PRECONDITION
                     .withDescription(StatusMessage.AMOUNT_SHOULD_BE_GREATER_THAN_ZERO.name())));
         }
@@ -59,7 +61,7 @@ public class WalletService extends WalletServiceImplBase {
                         responseObserver.onCompleted();
                     }
                 } else {
-                    logger.log(Level.WARNING, StatusMessage.INSUFFICIENT_BALANCE.name());
+                    logger.warn(StatusMessage.INSUFFICIENT_BALANCE.name());
                     responseObserver.onError(new StatusRuntimeException(
                             Status.FAILED_PRECONDITION.withDescription(StatusMessage.INSUFFICIENT_BALANCE.name())));
                 }
@@ -80,6 +82,7 @@ public class WalletService extends WalletServiceImplBase {
             responseObserver.onNext(BalanceResponse.newBuilder().setAmount(wallets.get(request.getUserID())).build());
             responseObserver.onCompleted();
         } else {
+            logger.warn("{}", request.getUserID(), StatusMessage.USER_DOES_NOT_EXIST.name());
             responseObserver.onError(new StatusRuntimeException(
                     Status.FAILED_PRECONDITION.withDescription(StatusMessage.USER_DOES_NOT_EXIST.name())));
         }
@@ -101,4 +104,5 @@ public class WalletService extends WalletServiceImplBase {
         }
         return valid;
     }
+
 }

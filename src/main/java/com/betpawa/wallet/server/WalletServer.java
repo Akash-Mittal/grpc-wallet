@@ -1,7 +1,9 @@
 package com.betpawa.wallet.server;
 
 import java.io.IOException;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.betpawa.wallet.service.WalletService;
 
@@ -9,8 +11,7 @@ import io.grpc.Server;
 import io.grpc.ServerBuilder;
 
 public class WalletServer {
-    private static final Logger logger = Logger.getLogger(WalletServer.class.getName());
-
+    private static final Logger logger = LoggerFactory.getLogger(WalletServer.class);
     private final int port;
     private final Server server;
 
@@ -26,7 +27,7 @@ public class WalletServer {
 
     public void start() throws IOException {
         server.start();
-        logger.info("Server started, listening on " + port);
+        logger.info("Server started, listening on {}", port);
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {

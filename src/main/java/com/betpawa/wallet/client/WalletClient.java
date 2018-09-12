@@ -2,8 +2,9 @@ package com.betpawa.wallet.client;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.betpawa.wallet.BalanceRequest;
 import com.betpawa.wallet.BalanceResponse;
@@ -19,7 +20,7 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 
 public class WalletClient {
-    private static final Logger logger = Logger.getLogger(WalletClient.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(WalletClient.class);
     private final ManagedChannel channel;
     private final WalletServiceBlockingStub blockingStub;
     private AtomicLong rpcCount = new AtomicLong();
@@ -50,7 +51,7 @@ public class WalletClient {
             blockingStub.deposit(
                     DepositRequest.newBuilder().setAmount(amount).setUserID(userID).setCurrency(currency).build());
         } catch (StatusRuntimeException e) {
-            logger.log(Level.WARNING, e.getStatus().getDescription());
+            logger.warn(e.getStatus().getDescription());
         }
 
     }
@@ -63,7 +64,7 @@ public class WalletClient {
             rpcCount.incrementAndGet();
 
         } catch (StatusRuntimeException e) {
-            logger.log(Level.WARNING, e.getStatus().getDescription());
+            logger.warn(e.getStatus().getDescription());
         }
         return withdrawResponse;
     }
@@ -77,7 +78,7 @@ public class WalletClient {
             rpcCount.incrementAndGet();
 
         } catch (StatusRuntimeException e) {
-            logger.log(Level.WARNING, e.getStatus().getDescription());
+            logger.warn(e.getStatus().getDescription());
         }
         return balanceResponse;
 
