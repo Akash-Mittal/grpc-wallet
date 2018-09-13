@@ -5,7 +5,9 @@ import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 
-import com.betpawa.wallet.DepositRequest;
+import com.betpawa.wallet.CURRENCY;
+import com.betpawa.wallet.auto.entities.generated.BpCurrency;
+import com.betpawa.wallet.auto.entities.generated.BpUser;
 
 public class HibernateConfig {
     private static SessionFactory sessionFactory;
@@ -23,7 +25,11 @@ public class HibernateConfig {
     public static void main(String[] args) {
         Session session = HibernateConfig.getSessionFactory().openSession();
         session.beginTransaction();
-        session.save(DepositRequest.newBuilder().setUserID(1));
+        BpCurrency bpCurrency = new BpCurrency();
+        bpCurrency.setCurrencyVal(CURRENCY.USD.name());
+
+        session.save(bpCurrency);
+        session.save(new BpUser());
         session.getTransaction().commit();
         session.close();
         System.out.println("Done");
