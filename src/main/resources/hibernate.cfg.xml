@@ -5,7 +5,7 @@
   <session-factory>
     <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
     <property name="hibernate.connection.url">
-    jdbc:mysql://192.168.99.100:6603/bpwallet</property>
+    jdbc:mysql://192.168.99.100:6603/bp_wallet</property>
     <property name="hibernate.connection.username">root</property>
     <property name="hibernate.connection.password">mypassword</property>
     <property name="hibernate.connection.pool_size">10</property>
