@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.betpawa.wallet.CURRENCY;
 import com.betpawa.wallet.client.WalletClient;
+import com.betpawa.wallet.client.WalletClientAsync;
 import com.betpawa.wallet.service.WalletService;
 
 import io.grpc.ManagedChannel;
@@ -21,7 +22,7 @@ import io.grpc.ServerBuilder;
 public class WalletApp {
     private static final Logger logger = LoggerFactory.getLogger(WalletApp.class);
 
-    private static final long DURATION_SECONDS = 1;
+    private static final long DURATION_SECONDS = 10;
 
     private Server server;
     private ManagedChannel channel;
@@ -30,7 +31,8 @@ public class WalletApp {
         WalletApp store = new WalletApp();
         store.startServer();
         try {
-            store.runClient();
+            store.runSimpleClient();
+            // store.runAysncClient();
         } finally {
             store.stopServer();
         }
@@ -61,7 +63,7 @@ public class WalletApp {
         throw new RuntimeException("Unable to shutdown server");
     }
 
-    private void runClient() throws InterruptedException {
+    private void runSimpleClient() throws InterruptedException {
         if (channel != null) {
             throw new IllegalStateException("Already started");
         }
@@ -71,18 +73,49 @@ public class WalletApp {
         try {
             AtomicBoolean done = new AtomicBoolean();
             WalletClient client = new WalletClient(channel);
+            WalletClientAsync walletClientAsync = new WalletClientAsync(channel);
             logger.info("Starting");
             scheduler.schedule(() -> done.set(true), DURATION_SECONDS, TimeUnit.SECONDS);
             while (!done.get()) {
                 RoundA(client);
+                // ARoundA(walletClientAsync);
             }
             double qps = client.getRpcCount().longValue() / DURATION_SECONDS;
-            logger.info("Did {0} RPCs/s", new Object[] { qps });
+            logger.info("Did {} RPCs/s", qps);
+        } finally {
+            scheduler.shutdownNow();
+            channel.shutdownNow();
+        }
+    }
+
+    private void runAysncClient() throws InterruptedException {
+        if (channel != null) {
+            throw new IllegalStateException("Already started");
+        }
+        channel = ManagedChannelBuilder.forAddress("localhost", server.getPort()).usePlaintext(true).build();
+
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            AtomicBoolean done = new AtomicBoolean();
+            WalletClientAsync client = new WalletClientAsync(channel);
+            logger.info("Starting");
+            scheduler.schedule(() -> done.set(true), DURATION_SECONDS, TimeUnit.SECONDS);
+            while (!done.get()) {
+                ARoundA(client);
+            }
+            double qps = client.getRpcCount().longValue() / DURATION_SECONDS;
+            logger.info("Did {} RPCs/s", qps);
         } finally {
 
             scheduler.shutdownNow();
             channel.shutdownNow();
         }
+    }
+
+    private void ARoundA(WalletClientAsync client) {
+        client.deposit(100F, 1, CURRENCY.USD);
+        client.withdraw(1, 200F, CURRENCY.USD);
+        client.deposit(100F, 1, CURRENCY.EUR);
     }
 
     private void RoundA(WalletClient client) {
@@ -123,4 +156,38 @@ class Exec extends Thread {
     public void setClient(WalletClient client) {
         this.client = client;
     }
+}
+
+class RunArguments {
+    private Integer numberOfUsers = Integer.valueOf(1);
+    private Integer numberOfThread = Integer.valueOf(1);
+    private Integer numberOfRounds = Integer.valueOf(1);
+
+    public Integer getNumberOfUsers() {
+        return numberOfUsers;
+    }
+
+    public RunArguments setNumberOfUsers(Integer numberOfUsers) {
+        this.numberOfUsers = numberOfUsers;
+        return this;
+    }
+
+    public Integer getNumberOfThread() {
+        return numberOfThread;
+    }
+
+    public RunArguments setNumberOfThread(Integer numberOfThread) {
+        this.numberOfThread = numberOfThread;
+        return this;
+    }
+
+    public Integer getNumberOfRounds() {
+        return numberOfRounds;
+    }
+
+    public RunArguments setNumberOfRounds(Integer numberOfRounds) {
+        this.numberOfRounds = numberOfRounds;
+        return this;
+    }
+
 }

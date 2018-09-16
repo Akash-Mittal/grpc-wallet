@@ -25,11 +25,10 @@ DROP TABLE IF EXISTS `bp_currency`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
  SET character_set_client = utf8mb4 ;
 CREATE TABLE `bp_currency` (
-  `currency_id` varchar(45) NOT NULL,
-  `currency_val` varchar(45) NOT NULL,
-  PRIMARY KEY (`currency_id`),
-  UNIQUE KEY `currency_val_UNIQUE` (`currency_val`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `currency_id` int(11) NOT NULL AUTO_INCREMENT,
+  `currency_val` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`currency_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -38,7 +37,7 @@ CREATE TABLE `bp_currency` (
 
 LOCK TABLES `bp_currency` WRITE;
 /*!40000 ALTER TABLE `bp_currency` DISABLE KEYS */;
-INSERT INTO `bp_currency` VALUES ('34','EUR'),('35','GBP'),('33','USD');
+INSERT INTO `bp_currency` VALUES (1,'USD');
 /*!40000 ALTER TABLE `bp_currency` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -50,10 +49,10 @@ DROP TABLE IF EXISTS `bp_user`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
  SET character_set_client = utf8mb4 ;
 CREATE TABLE `bp_user` (
-  `user_id` varchar(45) NOT NULL,
-  `user_name` varchar(45) DEFAULT NULL,
+  `user_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_name` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -62,7 +61,7 @@ CREATE TABLE `bp_user` (
 
 LOCK TABLES `bp_user` WRITE;
 /*!40000 ALTER TABLE `bp_user` DISABLE KEYS */;
-INSERT INTO `bp_user` VALUES ('44','MIKE'),('45','ADAM'),('46','John');
+INSERT INTO `bp_user` VALUES (1,NULL);
 /*!40000 ALTER TABLE `bp_user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -74,14 +73,14 @@ DROP TABLE IF EXISTS `bp_user_currency`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
  SET character_set_client = utf8mb4 ;
 CREATE TABLE `bp_user_currency` (
-  `user_currency_id` varchar(45) NOT NULL,
-  `user_id` varchar(45) DEFAULT NULL,
-  `currency_id` varchar(45) DEFAULT NULL,
+  `user_currency_id` int(11) NOT NULL AUTO_INCREMENT,
+  `currency_id` int(11) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`user_currency_id`),
-  KEY `fk-user-id_idx` (`user_id`),
-  KEY `fk_currency_id_idx` (`currency_id`),
-  CONSTRAINT `fk_currency_id` FOREIGN KEY (`currency_id`) REFERENCES `bp_currency` (`currency_id`) ON UPDATE CASCADE,
-  CONSTRAINT `fk_user_id` FOREIGN KEY (`user_id`) REFERENCES `bp_user` (`user_id`) ON UPDATE CASCADE
+  KEY `FK_eu9rybh7u0sqk99ooym123556` (`currency_id`),
+  KEY `FK_hwbw1arry2jcl5l502jofjp2b` (`user_id`),
+  CONSTRAINT `FK_eu9rybh7u0sqk99ooym123556` FOREIGN KEY (`currency_id`) REFERENCES `bp_currency` (`currency_id`),
+  CONSTRAINT `FK_hwbw1arry2jcl5l502jofjp2b` FOREIGN KEY (`user_id`) REFERENCES `bp_user` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -91,7 +90,6 @@ CREATE TABLE `bp_user_currency` (
 
 LOCK TABLES `bp_user_currency` WRITE;
 /*!40000 ALTER TABLE `bp_user_currency` DISABLE KEYS */;
-INSERT INTO `bp_user_currency` VALUES ('55','44','33'),('56','44','34'),('57','44','35');
 /*!40000 ALTER TABLE `bp_user_currency` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -103,12 +101,12 @@ DROP TABLE IF EXISTS `bp_user_wallet`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
  SET character_set_client = utf8mb4 ;
 CREATE TABLE `bp_user_wallet` (
-  `user_wallet_id` varchar(45) NOT NULL,
-  `user_currency_id` varchar(45) DEFAULT NULL,
+  `user_wallet_id` int(11) NOT NULL AUTO_INCREMENT,
   `user_balance` float DEFAULT NULL,
+  `user_currency_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`user_wallet_id`),
-  KEY `fk_user_currency_idx` (`user_currency_id`),
-  CONSTRAINT `fk_user_currency` FOREIGN KEY (`user_currency_id`) REFERENCES `bp_user_currency` (`user_currency_id`)
+  KEY `FK_pyvdoi4q1boy438lwfu52kspp` (`user_currency_id`),
+  CONSTRAINT `FK_pyvdoi4q1boy438lwfu52kspp` FOREIGN KEY (`user_currency_id`) REFERENCES `bp_user_currency` (`user_currency_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -118,7 +116,6 @@ CREATE TABLE `bp_user_wallet` (
 
 LOCK TABLES `bp_user_wallet` WRITE;
 /*!40000 ALTER TABLE `bp_user_wallet` DISABLE KEYS */;
-INSERT INTO `bp_user_wallet` VALUES ('66','55',99000),('67','56',4245),('68','57',7866);
 /*!40000 ALTER TABLE `bp_user_wallet` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -131,4 +128,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-09-13 13:34:39
+-- Dump completed on 2018-09-16 23:17:25

@@ -23,6 +23,7 @@ public class WalletClient {
     private static final Logger logger = LoggerFactory.getLogger(WalletClient.class);
     private final ManagedChannel channel;
     private final WalletServiceBlockingStub blockingStub;
+
     private AtomicLong rpcCount = new AtomicLong();
 
     /** Construct client for accessing RouteGuide server at {@code host:port}. */
@@ -50,6 +51,8 @@ public class WalletClient {
 
             blockingStub.deposit(
                     DepositRequest.newBuilder().setAmount(amount).setUserID(userID).setCurrency(currency).build());
+            rpcCount.incrementAndGet();
+
         } catch (StatusRuntimeException e) {
             logger.warn(e.getStatus().getDescription());
         }
@@ -70,7 +73,6 @@ public class WalletClient {
     }
 
     public BalanceResponse balance(int userID) {
-        rpcCount.incrementAndGet();
         BalanceResponse balanceResponse = null;
         try {
 
@@ -88,4 +90,7 @@ public class WalletClient {
         return rpcCount;
     }
 
+    public WalletServiceBlockingStub getBlockingStub() {
+        return blockingStub;
+    }
 }
