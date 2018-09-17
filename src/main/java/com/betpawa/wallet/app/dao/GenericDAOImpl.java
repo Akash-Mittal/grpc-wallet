@@ -44,6 +44,14 @@ public class GenericDAOImpl<T> implements IGenericDAO<T> {
     }
 
     @Override
+    public void saveOrUpdate(T object) {
+        Session session = sessionFactory.getCurrentSession();
+        session.beginTransaction();
+        session.saveOrUpdate(object);
+        session.getTransaction().commit();
+    }
+
+    @Override
     public void delete(T object) {
         Session session = sessionFactory.getCurrentSession();
         session.beginTransaction();

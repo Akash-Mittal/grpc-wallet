@@ -2,6 +2,7 @@ package com.betpawa.wallet.app.dao.service;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
 
@@ -24,12 +25,18 @@ public class UserCurrencyService extends GenericServiceImpl<BpUserCurrency> {
     }
 
     public Integer getID(int userID, CURRENCY currency) {
-        Session session = HibernateConfig.getSessionFactory().getCurrentSession();
-        Integer result = (Integer) session.createCriteria(BpUserCurrency.class).add(Restrictions.eq("user_id", userID))
-                .add(Restrictions.eq("currency_id", SERVICE.FACTORY.getCurrencyService().get(currency).getCurrencyId()))
-                .setProjection(Property.forName("user_currency_id")).uniqueResult();
+        Integer result = null;
+        Integer currencyID = SERVICE.FACTORY.getCurrencyService().get(currency).getCurrencyId();
+        if (currencyID != null) {
+            Session session = HibernateConfig.getSessionFactory().getCurrentSession();
+            Transaction transaction = session.beginTransaction();
+            result = (Integer) session.createCriteria(BpUserCurrency.class)
+                    .add(Restrictions.eq("bpUser.userId", userID))
+                    .add(Restrictions.eq("bpCurrency.currencyId", currencyID))
+                    .setProjection(Property.forName("userCurrencyId")).uniqueResult();
+            transaction.commit();
+        }
         return result;
 
     }
-
 }

@@ -22,7 +22,7 @@ import io.grpc.ServerBuilder;
 public class WalletApp {
     private static final Logger logger = LoggerFactory.getLogger(WalletApp.class);
 
-    private static final long DURATION_SECONDS = 10;
+    private static final long DURATION_SECONDS = 1;
 
     private Server server;
     private ManagedChannel channel;
@@ -119,13 +119,9 @@ public class WalletApp {
     }
 
     private void RoundA(WalletClient client) {
+        client.balance(1);
         client.deposit(100F, 1, CURRENCY.USD);
         client.withdraw(1, 200F, CURRENCY.USD);
-        client.deposit(100F, 1, CURRENCY.EUR);
-        client.balance(1);
-        client.withdraw(1, 100F, CURRENCY.USD);
-        client.balance(1);
-        client.withdraw(1, 100F, CURRENCY.USD);
     }
 
 }

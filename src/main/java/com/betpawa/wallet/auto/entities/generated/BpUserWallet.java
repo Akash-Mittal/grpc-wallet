@@ -2,6 +2,7 @@ package com.betpawa.wallet.auto.entities.generated;
 
 import java.io.Serializable;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -31,7 +32,7 @@ public class BpUserWallet implements Serializable {
     private float userBalance;
 
     // bi-directional many-to-one association to BpUserCurrency
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_currency_id")
     private BpUserCurrency bpUserCurrency;
 

@@ -37,7 +37,7 @@ CREATE TABLE `bp_currency` (
 
 LOCK TABLES `bp_currency` WRITE;
 /*!40000 ALTER TABLE `bp_currency` DISABLE KEYS */;
-INSERT INTO `bp_currency` VALUES (1,'USD');
+INSERT INTO `bp_currency` VALUES (1,'USD'),(2,'EUR'),(3,'GBP');
 /*!40000 ALTER TABLE `bp_currency` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -61,7 +61,7 @@ CREATE TABLE `bp_user` (
 
 LOCK TABLES `bp_user` WRITE;
 /*!40000 ALTER TABLE `bp_user` DISABLE KEYS */;
-INSERT INTO `bp_user` VALUES (1,NULL);
+INSERT INTO `bp_user` VALUES (1,'Mike'),VALUES (2,'Adam');
 /*!40000 ALTER TABLE `bp_user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -89,8 +89,7 @@ CREATE TABLE `bp_user_currency` (
 --
 
 LOCK TABLES `bp_user_currency` WRITE;
-/*!40000 ALTER TABLE `bp_user_currency` DISABLE KEYS */;
-/*!40000 ALTER TABLE `bp_user_currency` ENABLE KEYS */;
+INSERT INTO `bp_user_currency`  VALUES (1, 1, 1),(2, 2, 1);
 UNLOCK TABLES;
 
 --
@@ -115,8 +114,7 @@ CREATE TABLE `bp_user_wallet` (
 --
 
 LOCK TABLES `bp_user_wallet` WRITE;
-/*!40000 ALTER TABLE `bp_user_wallet` DISABLE KEYS */;
-/*!40000 ALTER TABLE `bp_user_wallet` ENABLE KEYS */;
+INSERT INTO `bp_user_wallet` VALUES (1, 100, 1),(2, 100, 2);
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

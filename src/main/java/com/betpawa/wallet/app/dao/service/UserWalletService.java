@@ -3,6 +3,7 @@ package com.betpawa.wallet.app.dao.service;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
 
@@ -29,21 +30,37 @@ public class UserWalletService extends GenericServiceImpl<BpUserWallet> {
     }
 
     public Float getBalance(int userID, CURRENCY currency) {
-        Session session = HibernateConfig.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
-        Float balance = (Float) session.createCriteria(BpUserWallet.class)
-                .add(Restrictions.eq("user_currency_id",
-                        SERVICE.FACTORY.getUserCurrencyService().getID(userID, currency)))
-                .setProjection(Property.forName("user_balance")).uniqueResult();
+        Float balance = null;
+        Integer userCurrencyID = SERVICE.FACTORY.getUserCurrencyService().getID(userID, currency);
+        if (userCurrencyID != null) {
+            Session session = HibernateConfig.getSessionFactory().getCurrentSession();
+            Transaction transaction = session.beginTransaction();
+            balance = (Float) session.createCriteria(BpUserWallet.class)
+                    .add(Restrictions.eq("bpUserCurrency.userCurrencyId", userCurrencyID))
+                    .setProjection(Property.forName("userBalance")).uniqueResult();
+            transaction.commit();
+        }
+        return balance;
+    }
 
-        session.getTransaction().commit();
+    public Float getBalance(int userID) {
+        Float balance = null;
+        Integer userCurrencyID = SERVICE.FACTORY.getUserCurrencyService().getID(userID, currency);
+        if (userCurrencyID != null) {
+            Session session = HibernateConfig.getSessionFactory().getCurrentSession();
+            Transaction transaction = session.beginTransaction();
+            balance = (Float) session.createCriteria(BpUserWallet.class)
+                    .add(Restrictions.eq("bpUserCurrency.userCurrencyId", userCurrencyID))
+                    .setProjection(Property.forName("userBalance")).uniqueResult();
+            transaction.commit();
+        }
         return balance;
     }
 
     public Float updateBalance(int userID, CURRENCY currency, Float newBalance) {
         Integer userCurrencyID = SERVICE.FACTORY.getUserCurrencyService().getID(userID, currency);
         BpUserWallet bpUserWallet = getByUserCurrencyID(userCurrencyID);
-        update(bpUserWallet);
+        saveOrUpdate(bpUserWallet);
         return newBalance;
     }
 

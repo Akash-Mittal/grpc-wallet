@@ -34,6 +34,11 @@ public class GenericServiceImpl<T> implements IGenericService<T> {
     }
 
     @Override
+    public void saveOrUpdate(T object) {
+        dao.saveOrUpdate(object);
+    }
+
+    @Override
     public void delete(T object) {
         dao.delete(object);
     }

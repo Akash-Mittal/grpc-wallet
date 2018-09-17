@@ -24,5 +24,4 @@ public enum SERVICE {
     private static final CurrencyService CURRENCY_SERVICE = new CurrencyService();
     private static final UserCurrencyService USER_CURRENCY_SERVICE = new UserCurrencyService();
     private static final UserWalletService USER_WALLET_SERVICE = new UserWalletService();
-
 }
