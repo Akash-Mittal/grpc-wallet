@@ -7,21 +7,21 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-public class GenericDAOImpl<T> implements IGenericDAO<T> {
+public class BaseRepositoryImpl<T> implements BaseRepository<T> {
     private SessionFactory sessionFactory;
 
-    public GenericDAOImpl(Class<T> cl, SessionFactory sessionFactory) {
+    public BaseRepositoryImpl(Class<T> clazz, SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
         if (sessionFactory == null)
             throw new RuntimeException("Session factory is null!!!");
     }
 
     @Override
-    public T get(Class<T> cl, Integer id) {
+    public T get(Class<T> clazz, Integer id) {
         Session session = sessionFactory.getCurrentSession();
         session.beginTransaction();
         @SuppressWarnings("unchecked")
-        T element = (T) session.get(cl, id);
+        T element = (T) session.get(clazz, id);
         session.getTransaction().commit();
         return element;
     }
@@ -80,6 +80,17 @@ public class GenericDAOImpl<T> implements IGenericDAO<T> {
         session.getTransaction().commit();
 
         return result;
+    }
+
+    @Override
+    public List<T> getAll(Class<T> clazz) {
+        return query("from " + clazz.getName(), null);
+    }
+
+    @Override
+    public void deleteAll(Class<T> clazz) {
+        query("delete from " + clazz.getName(), null);
+
     }
 
 }

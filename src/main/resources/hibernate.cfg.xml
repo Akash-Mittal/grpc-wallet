@@ -13,9 +13,6 @@
   <property name="hibernate.hbm2ddl.auto">none</property>
   <property name="hibernate.current_session_context_class">thread</property>
   
-  <mapping class="com.betpawa.wallet.auto.entities.generated.BpUser"/>
-  <mapping class="com.betpawa.wallet.auto.entities.generated.BpCurrency"/>
-  <mapping class="com.betpawa.wallet.auto.entities.generated.BpUserCurrency"/>
-  <mapping class="com.betpawa.wallet.auto.entities.generated.BpUserWallet"/>
+  <mapping class="com.betpawa.wallet.auto.entities.generated.UserWallet"/>
  </session-factory>
 </hibernate-configuration>

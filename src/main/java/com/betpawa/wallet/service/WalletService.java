@@ -12,7 +12,8 @@ import com.betpawa.wallet.StatusMessage;
 import com.betpawa.wallet.WalletServiceGrpc.WalletServiceImplBase;
 import com.betpawa.wallet.WithdrawRequest;
 import com.betpawa.wallet.WithdrawResponse;
-import com.betpawa.wallet.app.dao.service.SERVICE;
+import com.betpawa.wallet.app.dao.service.FACTORY;
+import com.betpawa.wallet.auto.entities.generated.UserWallet;
 
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
@@ -27,17 +28,15 @@ public class WalletService extends WalletServiceImplBase {
     public void deposit(DepositRequest request, StreamObserver<DepositResponse> responseObserver) {
         Float balanceToADD = request.getAmount();
         if (checkAmountGreaterThanZero(balanceToADD)) {
-            Float currentBalance = 0F;
+            Float currentBalance = Float.valueOf(0);
             logger.info("Request Recieved for UserID:{} For Amount:{}{} ", request.getUserID(), request.getAmount(),
                     request.getCurrency());
-
-            if (SERVICE.FACTORY.getUserService().get(request.getUserID()) != null) {
-                currentBalance = SERVICE.FACTORY.getUserWalletService().getBalance(request.getUserID(),
-                        request.getCurrency());
-            }
+            UserWallet userWallet = FACTORY.GET.userWalletService().getByUserIDCurrency(request.getUserID(),
+                    request.getCurrency());
+            currentBalance = userWallet.getBalance();
             Float newBalance = Float.sum(currentBalance, balanceToADD);
-            SERVICE.FACTORY.getUserWalletService().updateBalance(request.getUserID(), request.getCurrency(),
-                    newBalance);
+            userWallet.setBalance(newBalance);
+            FACTORY.GET.userWalletService().saveOrUpdate(userWallet);
             responseObserver
                     .onNext(DepositResponse.newBuilder().setUserID(request.getUserID()).setAmount(newBalance).build());
             responseObserver.onCompleted();
@@ -53,12 +52,13 @@ public class WalletService extends WalletServiceImplBase {
     @Override
     public void withdraw(WithdrawRequest request, StreamObserver<WithdrawResponse> responseObserver) {
         if (checkAmountGreaterThanZero(request.getAmount())) {
-            if (SERVICE.FACTORY.getUserService().get(request.getUserID()) != null) {
+            if (FACTORY.FACTORY.getUserService().get(request.getUserID()) != null) {
                 Float balanceToWithdraw = request.getAmount();
-                Float existingBalance = SERVICE.FACTORY.getUserWalletService().getBalance(request.getUserID(),
+                UserWallet userWallet = FACTORY.GET.userWalletService().getByUserIDCurrency(request.getUserID(),
                         request.getCurrency());
+                Float existingBalance = userWallet.getBalance();
                 if (existingBalance.compareTo(balanceToWithdraw) >= 0) {
-                    SERVICE.FACTORY.getUserWalletService().updateBalance(request.getUserID(), request.getCurrency(),
+                    FACTORY.FACTORY.userWalletRepo().updateBalance(request.getUserID(), request.getCurrency(),
                             existingBalance - balanceToWithdraw);
                     responseObserver.onNext(WithdrawResponse.newBuilder().build());
                     responseObserver.onCompleted();
@@ -80,10 +80,9 @@ public class WalletService extends WalletServiceImplBase {
 
     @Override
     public void balance(BalanceRequest request, StreamObserver<BalanceResponse> responseObserver) {
-        if (SERVICE.FACTORY.getUserService().get(request.getUserID()) != null) {
+        if (FACTORY.FACTORY.getUserService().get(request.getUserID()) != null) {
             responseObserver.onNext(BalanceResponse.newBuilder()
-                    .setAmount(SERVICE.FACTORY.getUserWalletService().getBalance(request.getUserID(), CURRENCY.USD))
-                    .build());
+                    .setAmount(FACTORY.FACTORY.userWalletRepo().getBalance(request.getUserID(), CURRENCY.USD)).build());
             responseObserver.onCompleted();
         } else {
             logger.warn("{}", request.getUserID(), StatusMessage.USER_DOES_NOT_EXIST.name());

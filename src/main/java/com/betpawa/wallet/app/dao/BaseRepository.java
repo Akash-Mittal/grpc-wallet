@@ -3,7 +3,7 @@ package com.betpawa.wallet.app.dao;
 import java.util.List;
 import java.util.Map;
 
-public interface IGenericDAO<T> {
+public interface BaseRepository<T> {
     public T get(Class<T> cl, Integer id);
 
     public T save(T object);
@@ -16,4 +16,7 @@ public interface IGenericDAO<T> {
 
     public List<T> query(String hsql, Map<String, Object> params);
 
+    public List<T> getAll(Class<T> cl);
+
+    public void deleteAll(Class<T> cl);
 }
