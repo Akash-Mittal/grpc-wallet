@@ -16,7 +16,7 @@ public class UserWalletServiceImpl {
 
     public UserWallet getByUserIDCurrency(Integer userID, CURRENCY currency, boolean throwException)
             throws NotFoundException {
-        List<UserWallet> userWallets = FACTORY.GET.userWalletRepo().getByUserIDCurrency(userID, CURRENCY.USD);
+        List<UserWallet> userWallets = FACTORY.GET.userWalletRepo().getByUserIDCurrency(userID, currency);
         if (userWallets == null || userWallets.isEmpty() && !throwException) {
             return getDefault(userID, currency);
         } else if (userWallets == null || userWallets.isEmpty() && throwException) {

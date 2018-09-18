@@ -5,7 +5,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public interface Runner extends Runnable {
-    ExecutorService pool = Executors.newCachedThreadPool();
+    ExecutorService pool = Executors.newFixedThreadPool(10);
     Properties props = System.getProperties();
     Integer numberOfUsers = Integer.valueOf(props.getProperty("wallet.users", "2"));
     Integer numberOfRequests = Integer.valueOf(props.getProperty("wallet.threads", "2"));

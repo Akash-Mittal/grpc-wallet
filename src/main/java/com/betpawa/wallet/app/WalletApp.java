@@ -36,9 +36,9 @@ public class WalletApp {
             WalletClient walletClient = new WalletClient(channel);
 
             Properties props = System.getProperties();
-            Integer numberOfUsers = Integer.valueOf(props.getProperty("wallet.users", "1"));
+            Integer numberOfUsers = Integer.valueOf(props.getProperty("wallet.users", "10"));
             Integer numberOfThread = Integer.valueOf(props.getProperty("wallet.threads", "1"));
-            Integer numberOfRounds = Integer.valueOf(props.getProperty("wallet.rounds", "1"));
+            Integer numberOfRounds = Integer.valueOf(props.getProperty("wallet.rounds", "100"));
 
             for (int user = 1; user <= numberOfUsers; user++) {
                 Thread thread = new Thread(new UserRunner("", user));

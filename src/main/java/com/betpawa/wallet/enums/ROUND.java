@@ -40,6 +40,14 @@ public enum ROUND {
             TRANSACTION.BALANCE.doTransact(futureStub, userID, null, null);
 
         }
+    },
+    TEST {
+        @Override
+        public void goExecute(final WalletServiceFutureStub futureStub, final Integer userID) {
+            TRANSACTION.DEPOSIT.doTransact(futureStub, userID, AMOUNT.HUNDERED.getAmount(), CURRENCY.EUR);
+            TRANSACTION.DEPOSIT.doTransact(futureStub, userID, AMOUNT.HUNDERED.getAmount(), CURRENCY.USD);
+            TRANSACTION.DEPOSIT.doTransact(futureStub, userID, AMOUNT.HUNDERED.getAmount(), CURRENCY.GBP);
+        }
     };
 
     public abstract void goExecute(final WalletServiceFutureStub futureStub, final Integer userID);
