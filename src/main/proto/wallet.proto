@@ -77,7 +77,3 @@ EUR =1;
 GBP = 2;
 
 }
-
-message Empty {
-
-}

@@ -16,3 +16,7 @@ include 'services:webservice'
 */
 
 rootProject.name = 'grpc-wallet'
+
+include 'server'
+include 'client'
+include 'app'
