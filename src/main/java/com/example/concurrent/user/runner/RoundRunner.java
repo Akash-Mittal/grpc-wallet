@@ -2,7 +2,8 @@ package com.example.concurrent.user.runner;
 
 import java.util.Random;
 
-import com.example.concurrent.enums.ROUND;
+import com.betpawa.wallet.client.WalletClient;
+import com.betpawa.wallet.enums.ROUND;
 
 public class RoundRunner implements Runner {
     private String stats;
@@ -10,8 +11,9 @@ public class RoundRunner implements Runner {
 
     private Random random = new Random();
 
+    @Override
     public void run() {
-        ROUND.values()[random.nextInt(ROUND.values().length)].goExecute(userID, stats);
+        ROUND.values()[random.nextInt(ROUND.values().length)].goExecute(WalletClient.futureStub, userID);
     }
 
     public RoundRunner(String stats, Integer userID) {

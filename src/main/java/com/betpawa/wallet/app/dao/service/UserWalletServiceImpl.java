@@ -7,6 +7,7 @@ import com.betpawa.wallet.CURRENCY;
 import com.betpawa.wallet.StatusMessage;
 import com.betpawa.wallet.auto.entities.generated.UserWallet;
 import com.betpawa.wallet.auto.entities.generated.UserWalletPK;
+import com.betpawa.wallet.enums.FACTORY;
 
 import javassist.NotFoundException;
 

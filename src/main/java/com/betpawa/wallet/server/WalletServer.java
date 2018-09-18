@@ -21,7 +21,6 @@ public class WalletServer {
 
     public WalletServer(ServerBuilder<?> serverBuilder, int port) {
         this.port = port;
-        // server = null;
         server = serverBuilder.addService(new WalletService()).build();
     }
 

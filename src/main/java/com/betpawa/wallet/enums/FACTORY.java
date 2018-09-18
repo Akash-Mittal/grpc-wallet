@@ -1,6 +1,7 @@
-package com.betpawa.wallet.app.dao.service;
+package com.betpawa.wallet.enums;
 
 import com.betpawa.wallet.app.dao.UserWalletRepositoryImpl;
+import com.betpawa.wallet.app.dao.service.UserWalletServiceImpl;
 
 // Eager Initialization could be Lazy as well
 public enum FACTORY {

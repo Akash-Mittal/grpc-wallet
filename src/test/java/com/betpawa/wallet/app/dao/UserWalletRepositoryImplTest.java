@@ -9,9 +9,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.betpawa.wallet.CURRENCY;
-import com.betpawa.wallet.app.dao.service.FACTORY;
 import com.betpawa.wallet.auto.entities.generated.UserWallet;
 import com.betpawa.wallet.auto.entities.generated.UserWalletPK;
+import com.betpawa.wallet.enums.FACTORY;
 
 @Ignore
 public class UserWalletRepositoryImplTest {

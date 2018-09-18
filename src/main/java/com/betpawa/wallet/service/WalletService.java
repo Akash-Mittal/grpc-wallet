@@ -13,8 +13,8 @@ import com.betpawa.wallet.StatusMessage;
 import com.betpawa.wallet.WalletServiceGrpc.WalletServiceImplBase;
 import com.betpawa.wallet.WithdrawRequest;
 import com.betpawa.wallet.WithdrawResponse;
-import com.betpawa.wallet.app.dao.service.FACTORY;
 import com.betpawa.wallet.auto.entities.generated.UserWallet;
+import com.betpawa.wallet.enums.FACTORY;
 
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
