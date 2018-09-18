@@ -1,4 +1,4 @@
-package com.betpawa.wallet.enums;
+package com.betpawa.wallet.client.enums;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,7 @@ public enum TRANSACTION {
                 Futures.addCallback(response, new FutureCallback<DepositResponse>() {
                     @Override
                     public void onSuccess(DepositResponse result) {
-                        logger.info("Deposited Succesfully" + result);
+                        logger.info("Deposited Succesfully", result.getCurrencyValue());
                     }
 
                     @Override
@@ -58,7 +58,7 @@ public enum TRANSACTION {
             Futures.addCallback(response, new FutureCallback<WithdrawResponse>() {
                 @Override
                 public void onSuccess(WithdrawResponse result) {
-                    logger.info("Withdrawn Succesfully" + result);
+                    logger.info("Withdrawn Succesfully" + result.getBalance());
                 }
 
                 @Override
@@ -96,5 +96,4 @@ public enum TRANSACTION {
             final CURRENCY currency);
 
     private static final Logger logger = LoggerFactory.getLogger(WalletClient.class);
-
 }

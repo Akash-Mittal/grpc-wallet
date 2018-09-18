@@ -1,4 +1,4 @@
-package com.example.concurrent.user.runner;
+package com.betpawa.wallet.client.enums.runner;
 
 public class UserRunner implements Runner {
     private String stats;

@@ -8,9 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.betpawa.wallet.client.WalletClient;
+import com.betpawa.wallet.client.enums.runner.Runner;
+import com.betpawa.wallet.client.enums.runner.UserRunner;
 import com.betpawa.wallet.service.WalletService;
-import com.example.concurrent.user.runner.Runner;
-import com.example.concurrent.user.runner.UserRunner;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;

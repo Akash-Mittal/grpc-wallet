@@ -1,4 +1,4 @@
-package com.betpawa.wallet.enums;
+package com.betpawa.wallet.client.enums;
 
 import com.betpawa.wallet.CURRENCY;
 import com.betpawa.wallet.WalletServiceGrpc.WalletServiceFutureStub;
@@ -47,6 +47,8 @@ public enum ROUND {
             TRANSACTION.DEPOSIT.doTransact(futureStub, userID, AMOUNT.HUNDERED.getAmount(), CURRENCY.EUR);
             TRANSACTION.DEPOSIT.doTransact(futureStub, userID, AMOUNT.HUNDERED.getAmount(), CURRENCY.USD);
             TRANSACTION.DEPOSIT.doTransact(futureStub, userID, AMOUNT.HUNDERED.getAmount(), CURRENCY.GBP);
+            TRANSACTION.BALANCE.doTransact(futureStub, userID, null, null);
+
         }
     };
 

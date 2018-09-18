@@ -64,28 +64,23 @@ public class BaseRepositoryImpl<T> implements BaseRepository<T> {
     public List<T> query(String hsql, Map<String, Object> params) {
         Session session = null;
         List<T> result = null;
-        try {
-            session = sessionFactory.getCurrentSession();
-            session.beginTransaction();
-            Query query = session.createQuery(hsql);
-            if (params != null) {
-                for (String i : params.keySet()) {
-                    query.setParameter(i, params.get(i));
-                }
-            }
-
-            if ((hsql.toUpperCase().indexOf("DELETE") == -1) && (hsql.toUpperCase().indexOf("UPDATE") == -1)
-                    && (hsql.toUpperCase().indexOf("INSERT") == -1)) {
-                result = query.list();
-            } else {
-            }
-            session.getTransaction().commit();
-        } finally {
-            if (session != null) {
-                session.close();
+        session = sessionFactory.openSession();
+        session.beginTransaction();
+        Query query = session.createQuery(hsql);
+        if (params != null) {
+            for (String i : params.keySet()) {
+                query.setParameter(i, params.get(i));
             }
         }
+
+        if ((hsql.toUpperCase().indexOf("DELETE") == -1) && (hsql.toUpperCase().indexOf("UPDATE") == -1)
+                && (hsql.toUpperCase().indexOf("INSERT") == -1)) {
+            result = query.list();
+        } else {
+        }
+        session.getTransaction().commit();
         return result;
+
     }
 
     @Override

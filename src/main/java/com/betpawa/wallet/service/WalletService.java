@@ -14,14 +14,13 @@ import com.betpawa.wallet.WalletServiceGrpc.WalletServiceImplBase;
 import com.betpawa.wallet.WithdrawRequest;
 import com.betpawa.wallet.WithdrawResponse;
 import com.betpawa.wallet.auto.entities.generated.UserWallet;
-import com.betpawa.wallet.enums.FACTORY;
 
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import javassist.NotFoundException;
 
-public class WalletService extends WalletServiceImplBase {
+public class WalletService extends WalletServiceImplBase implements UserWalletService {
     private static final Logger logger = LoggerFactory.getLogger(WalletService.class);
 
     @Override
@@ -34,17 +33,16 @@ public class WalletService extends WalletServiceImplBase {
 
                 logger.info("Request Recieved for UserID:{} For Amount:{}{} ", request.getUserID(), request.getAmount(),
                         request.getCurrency());
-                userWallet = FACTORY.GET.userWalletService().getByUserIDCurrency(request.getUserID(),
-                        request.getCurrency(), false);
+                userWallet = getByUserIDCurrency(request.getUserID(), request.getCurrency(), false);
 
                 currentBalance = userWallet.getBalance();
                 Float newBalance = Float.sum(currentBalance, balanceToADD);
                 userWallet.setBalance(newBalance);
-                FACTORY.GET.userWalletService().saveOrUpdate(userWallet);
+                saveOrUpdate(userWallet);
                 responseObserver.onNext(
                         DepositResponse.newBuilder().setUserID(request.getUserID()).setAmount(newBalance).build());
                 responseObserver.onCompleted();
-                logger.info("Wallet Updated SuccessFully New Balance:", newBalance);
+                logger.info("Wallet Updated SuccessFully New Balance:{}", newBalance);
 
             } else {
                 logger.warn(StatusMessage.AMOUNT_SHOULD_BE_GREATER_THAN_ZERO.name());
@@ -67,14 +65,16 @@ public class WalletService extends WalletServiceImplBase {
             if (checkAmountGreaterThanZero(request.getAmount())) {
                 // if (FACTORY.GET.getUserService().get(request.getUserID()) != null) {
                 Float balanceToWithdraw = request.getAmount();
-                UserWallet userWallet = FACTORY.GET.userWalletService().getByUserIDCurrency(request.getUserID(),
-                        request.getCurrency(), true);
+                UserWallet userWallet = getByUserIDCurrency(request.getUserID(), request.getCurrency(), true);
                 Float existingBalance = userWallet.getBalance();
                 if (existingBalance.compareTo(balanceToWithdraw) >= 0) {
-                    userWallet.setBalance(existingBalance - balanceToWithdraw);
-                    FACTORY.GET.userWalletService().update(userWallet);
+                    Float newBalance = existingBalance - balanceToWithdraw;
+                    userWallet.setBalance(newBalance);
+                    update(userWallet);
                     responseObserver.onNext(WithdrawResponse.newBuilder().build());
                     responseObserver.onCompleted();
+                    logger.info("Wallet Updated SuccessFully New Balance:{}", newBalance);
+
                 } else {
                     logger.warn(StatusMessage.INSUFFICIENT_BALANCE.name());
                     responseObserver.onError(new StatusRuntimeException(
@@ -85,7 +85,9 @@ public class WalletService extends WalletServiceImplBase {
                         .withDescription(StatusMessage.AMOUNT_SHOULD_BE_GREATER_THAN_ZERO.name())));
             }
         } catch (NotFoundException notFoundException) {
-
+            logger.warn(StatusMessage.USER_DOES_NOT_EXIST.name());
+            responseObserver.onError(new StatusRuntimeException(
+                    Status.FAILED_PRECONDITION.withDescription(StatusMessage.USER_DOES_NOT_EXIST.name())));
         }
     }
 
@@ -93,7 +95,7 @@ public class WalletService extends WalletServiceImplBase {
     public void balance(BalanceRequest request, StreamObserver<BalanceResponse> responseObserver) {
         logger.info("Request Recieved for UserID:{}", request.getUserID());
         try {
-            List<UserWallet> userWallets = FACTORY.GET.userWalletService().getByUserID(request.getUserID());
+            List<UserWallet> userWallets = getByUserID(request.getUserID());
             final StringBuilder balance = new StringBuilder();
             userWallets.forEach(wallet -> {
                 balance.append(wallet.getCurrency() + ":" + wallet.getBalance());
@@ -103,7 +105,6 @@ public class WalletService extends WalletServiceImplBase {
             responseObserver.onCompleted();
         } catch (NotFoundException e) {
             logger.warn(StatusMessage.USER_DOES_NOT_EXIST.name());
-
             responseObserver.onError(new StatusRuntimeException(
                     Status.FAILED_PRECONDITION.withDescription(StatusMessage.USER_DOES_NOT_EXIST.name())));
 

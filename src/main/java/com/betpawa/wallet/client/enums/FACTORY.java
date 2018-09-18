@@ -1,4 +1,4 @@
-package com.betpawa.wallet.enums;
+package com.betpawa.wallet.client.enums;
 
 import com.betpawa.wallet.app.dao.UserWalletRepositoryImpl;
 import com.betpawa.wallet.service.WalletService;

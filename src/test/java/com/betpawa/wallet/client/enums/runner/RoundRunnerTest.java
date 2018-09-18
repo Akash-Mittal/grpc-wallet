@@ -1,11 +1,14 @@
-package com.betpawa.wallet.enums;
+package com.betpawa.wallet.client.enums.runner;
+
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
 import com.betpawa.wallet.client.WalletClient;
-import com.betpawa.wallet.client.enums.ROUND;
+import com.betpawa.wallet.client.enums.runner.RoundRunner;
+import com.betpawa.wallet.client.enums.runner.Runner;
 import com.betpawa.wallet.server.WalletServer;
 
 import io.grpc.ManagedChannel;
@@ -13,7 +16,7 @@ import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
 
-public class ROUNDTest {
+public class RoundRunnerTest {
     @Rule
     public final GrpcCleanupRule grpcCleanup = new GrpcCleanupRule();
 
@@ -23,7 +26,6 @@ public class ROUNDTest {
 
     @Before
     public void setUp() throws Exception {
-        // Generate a unique in-process server name.
         String serverName = InProcessServerBuilder.generateName();
         server = new WalletServer(InProcessServerBuilder.forName(serverName).directExecutor(), 0);
         server.start();
@@ -32,7 +34,13 @@ public class ROUNDTest {
     }
 
     @Test
-    public void test() {
-        RO\UND.B.goExecute(walletClient.getFutureStub(), 1);
+    public void testRun() throws InterruptedException {
+        for (int i = 0; i < 2; i++) {
+            Runner.pool.execute(new RoundRunner(i));
+        }
+        Runner.pool.awaitTermination(1, TimeUnit.SECONDS);
+        Runner.pool.shutdown();
+
     }
+
 }

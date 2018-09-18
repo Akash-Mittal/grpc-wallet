@@ -1,4 +1,4 @@
-package com.example.concurrent.user.runner;
+package com.betpawa.wallet.client.enums.runner;
 
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;

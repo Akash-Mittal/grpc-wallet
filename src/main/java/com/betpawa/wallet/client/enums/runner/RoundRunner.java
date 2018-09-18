@@ -1,9 +1,9 @@
-package com.example.concurrent.user.runner;
+package com.betpawa.wallet.client.enums.runner;
 
 import java.util.Random;
 
 import com.betpawa.wallet.client.WalletClient;
-import com.betpawa.wallet.enums.ROUND;
+import com.betpawa.wallet.client.enums.ROUND;
 
 public class RoundRunner implements Runner {
     private String stats;
