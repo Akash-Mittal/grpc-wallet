@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.List;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.betpawa.wallet.CURRENCY;
@@ -12,6 +13,7 @@ import com.betpawa.wallet.app.dao.service.FACTORY;
 import com.betpawa.wallet.auto.entities.generated.UserWallet;
 import com.betpawa.wallet.auto.entities.generated.UserWalletPK;
 
+@Ignore
 public class UserWalletRepositoryImplTest {
 
     public void setUp() throws Exception {
@@ -29,11 +31,6 @@ public class UserWalletRepositoryImplTest {
 
     }
 
-    // @AfterClass
-    // public static void tear() {
-    // FACTORY.GET.userWalletRepo().deleteAll(UserWallet.class);
-    // }
-
     @Test
     public void testGetByUserIDCurrency() throws Exception {
         Float balance = Float.valueOf(22);
@@ -47,7 +44,7 @@ public class UserWalletRepositoryImplTest {
     @Test
     public void testGetByUserID() throws Exception {
         Integer userID = Integer.valueOf(1);
-        List<UserWallet> userWallets = FACTORY.GET.userWalletRepo().getByUserID(userID, CURRENCY.USD);
+        List<UserWallet> userWallets = FACTORY.GET.userWalletRepo().getByUserID(userID);
         Assert.assertNotNull(userWallets);
         Assert.assertEquals(3, userWallets.size());
 
