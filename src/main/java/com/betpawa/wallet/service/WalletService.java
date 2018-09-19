@@ -24,7 +24,7 @@ public class WalletService extends WalletServiceImplBase implements UserWalletSe
     private static final Logger logger = LoggerFactory.getLogger(WalletService.class);
 
     @Override
-    public void deposit(DepositRequest request, StreamObserver<DepositResponse> responseObserver) {
+    public synchronized void deposit(DepositRequest request, StreamObserver<DepositResponse> responseObserver) {
         try {
             Float balanceToADD = request.getAmount();
             if (checkAmountGreaterThanZero(balanceToADD)) {
@@ -57,7 +57,7 @@ public class WalletService extends WalletServiceImplBase implements UserWalletSe
     }
 
     @Override
-    public void withdraw(WithdrawRequest request, StreamObserver<WithdrawResponse> responseObserver) {
+    public synchronized void withdraw(WithdrawRequest request, StreamObserver<WithdrawResponse> responseObserver) {
 
         logger.info("Request Recieved for UserID:{} For Amount:{}{} ", request.getUserID(), request.getAmount(),
                 request.getCurrency());

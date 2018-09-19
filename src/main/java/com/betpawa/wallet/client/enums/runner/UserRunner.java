@@ -4,9 +4,10 @@ public class UserRunner implements Runner {
     private String stats;
     private Integer userID;
 
+    @Override
     public void run() {
-        for (int i = 1; i <= numberOfRequests; i++) {
-            pool.execute(new RequestRunner("User:" + userID + " Request Number:" + i, userID));
+        for (Integer i = new Integer(1); i <= numberOfUsers; i++) {
+            pool.execute(new RequestRunner("User:" + i, i));
         }
     }
 

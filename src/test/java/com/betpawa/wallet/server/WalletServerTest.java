@@ -2,6 +2,8 @@ package com.betpawa.wallet.server;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.concurrent.TimeUnit;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -20,6 +22,7 @@ import com.betpawa.wallet.WalletServiceGrpc;
 import com.betpawa.wallet.WalletServiceGrpc.WalletServiceBlockingStub;
 import com.betpawa.wallet.WithdrawRequest;
 import com.betpawa.wallet.WithdrawResponse;
+import com.betpawa.wallet.client.enums.runner.Runner;
 
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
@@ -55,24 +58,40 @@ public class WalletServerTest {
     @Test
     public void testDeposit() throws Exception {
         int userID = 1;
-        Float amount = 123F;
-        DepositResponse depositResponse = stub
-                .deposit(DepositRequest.newBuilder().setUserID(userID).setAmount(new Float(amount)).build());
-        assertEquals(depositResponse.getAmount(), (Float.sum(amount, 0F)), 0F);
-        assertEquals(depositResponse.getUserID(), userID);
-        assertEquals(depositResponse.getCurrency(), CURRENCY.USD);
+        Float amount = 100F;
 
-        depositResponse = stub
-                .deposit(DepositRequest.newBuilder().setUserID(userID).setAmount(new Float(amount)).build());
-        assertEquals(depositResponse.getAmount(), amount * 2.0, 0F);
-        assertEquals(depositResponse.getUserID(), userID);
-        assertEquals(depositResponse.getCurrency(), CURRENCY.USD);
+        for (int i = 0; i < 100; i++) {
+            Runner.pool.execute(new Thread() {
+                @Override
+                public void run() {
+                    withdraw(1, amount, CURRENCY.USD);
+                }
+            });
 
-        depositResponse = stub
-                .deposit(DepositRequest.newBuilder().setUserID(userID).setAmount(new Float(amount)).build());
-        assertEquals(depositResponse.getAmount(), amount * 3.0, 0F);
-        assertEquals(depositResponse.getUserID(), userID);
-        assertEquals(depositResponse.getCurrency(), CURRENCY.USD);
+            Runner.pool.execute(new Thread() {
+                @Override
+                public void run() {
+                    deposit(1, amount, CURRENCY.USD);
+                }
+            });
+        }
+        Runner.pool.awaitTermination(2, TimeUnit.MINUTES);
+        Runner.pool.shutdown();
+        // assertEquals(depositResponse.getAmount(), (Float.sum(amount, 0F)), 0F);
+        // assertEquals(depositResponse.getUserID(), userID);
+        // assertEquals(depositResponse.getCurrency(), CURRENCY.USD);
+        //
+        // depositResponse = stub
+        // .deposit(DepositRequest.newBuilder().setUserID(userID).setAmount(new Float(amount)).build());
+        // assertEquals(depositResponse.getAmount(), amount * 2.0, 0F);
+        // assertEquals(depositResponse.getUserID(), userID);
+        // assertEquals(depositResponse.getCurrency(), CURRENCY.USD);
+        //
+        // depositResponse = stub
+        // .deposit(DepositRequest.newBuilder().setUserID(userID).setAmount(new Float(amount)).build());
+        // assertEquals(depositResponse.getAmount(), amount * 3.0, 0F);
+        // assertEquals(depositResponse.getUserID(), userID);
+        // assertEquals(depositResponse.getCurrency(), CURRENCY.USD);
 
     }
 

@@ -1,6 +1,6 @@
 package com.betpawa.wallet.client.enums.runner;
 
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import com.betpawa.wallet.client.WalletClient;
 import com.betpawa.wallet.client.enums.ROUND;
@@ -9,16 +9,19 @@ public class RoundRunner implements Runner {
     private String stats;
     private Integer userID;
 
-    private Random random = new Random();
-
     @Override
     public void run() {
-        ROUND.values()[random.nextInt(ROUND.values().length)].goExecute(WalletClient.futureStub, userID);
+        for (Integer i = new Integer(1); i <= numberOfRounds; i++) {
+            ROUND.values()[ThreadLocalRandom.current().nextInt(0, (ROUND.values().length))]
+                    .goExecute(WalletClient.futureStub, userID, stats + ":Round:" + i);
+        }
+
     }
 
     public RoundRunner(String stats, Integer userID) {
-        this.userID = userID;
+        super();
         this.stats = stats;
+        this.userID = userID;
     }
 
     public Integer getUserID() {

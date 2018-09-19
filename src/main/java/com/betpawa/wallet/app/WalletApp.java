@@ -1,7 +1,6 @@
 package com.betpawa.wallet.app;
 
 import java.io.IOException;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -27,26 +26,20 @@ public class WalletApp {
 
     public static void main(String[] args) throws InterruptedException, IOException {
         WalletApp store = new WalletApp();
+        WalletClient walletClient = null;
         store.startServer();
         try {
             if (channel != null) {
                 throw new IllegalStateException("Already started");
             }
             channel = ManagedChannelBuilder.forAddress("localhost", server.getPort()).usePlaintext(true).build();
-            WalletClient walletClient = new WalletClient(channel);
-
-            Properties props = System.getProperties();
-            Integer numberOfUsers = Integer.valueOf(props.getProperty("wallet.users", "10"));
-            Integer numberOfThread = Integer.valueOf(props.getProperty("wallet.threads", "1"));
-            Integer numberOfRounds = Integer.valueOf(props.getProperty("wallet.rounds", "100"));
-
-            for (int user = 1; user <= numberOfUsers; user++) {
-                Thread thread = new Thread(new UserRunner("", user));
-                Runner.pool.execute(thread);
-            }
-            Runner.pool.awaitTermination(5, TimeUnit.SECONDS);
+            walletClient = new WalletClient(channel);
+            Runner.pool.execute(new UserRunner("", 1));
+            Runner.pool.awaitTermination(5000, TimeUnit.MILLISECONDS);
             Runner.pool.shutdown();
+
         } finally {
+
             store.stopServer();
         }
     }

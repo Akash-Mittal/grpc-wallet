@@ -64,7 +64,7 @@ public class BaseRepositoryImpl<T> implements BaseRepository<T> {
     public List<T> query(String hsql, Map<String, Object> params) {
         Session session = null;
         List<T> result = null;
-        session = sessionFactory.openSession();
+        session = sessionFactory.getCurrentSession();
         session.beginTransaction();
         Query query = session.createQuery(hsql);
         if (params != null) {

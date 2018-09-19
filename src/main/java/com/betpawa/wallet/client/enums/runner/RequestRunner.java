@@ -12,10 +12,10 @@ public class RequestRunner implements Runner {
         this.userID = userID;
     }
 
+    @Override
     public void run() {
         for (int i = 1; i <= numberOfRounds; i++) {
-            Thread thread = new Thread(new RoundRunner(stats + " Round Number:" + i, userID));
-            pool.execute(thread);
+            pool.execute(new RoundRunner(stats + ":Request Number:" + i, userID));
         }
     }
 

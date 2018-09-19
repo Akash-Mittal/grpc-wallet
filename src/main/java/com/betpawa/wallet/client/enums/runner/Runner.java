@@ -7,8 +7,8 @@ import java.util.concurrent.Executors;
 public interface Runner extends Runnable {
     ExecutorService pool = Executors.newFixedThreadPool(10);
     Properties props = System.getProperties();
-    Integer numberOfUsers = Integer.valueOf(props.getProperty("wallet.users", "2"));
-    Integer numberOfRequests = Integer.valueOf(props.getProperty("wallet.threads", "2"));
-    Integer numberOfRounds = Integer.valueOf(props.getProperty("wallet.rounds", "2"));
+    Integer numberOfUsers = Integer.valueOf(props.getProperty("wallet.users", "1"));
+    Integer numberOfRequests = Integer.valueOf(props.getProperty("wallet.threads", "1"));
+    Integer numberOfRounds = Integer.valueOf(props.getProperty("wallet.rounds", "1"));
 
 }
