@@ -33,6 +33,6 @@ public class ROUNDTest {
 
     @Test
     public void test() {
-        RO\UND.B.goExecute(walletClient.getFutureStub(), 1);
+        ROUND.B.goExecute(walletClient.getFutureStub(), 1);
     }
 }
