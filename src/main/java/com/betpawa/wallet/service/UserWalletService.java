@@ -26,6 +26,7 @@ public interface UserWalletService {
     }
 
     default UserWallet getDefault(Integer userID, CURRENCY currency) {
+        // ThreadLocalRandom for Demo only
         return new UserWallet.Builder().currency(currency.name()).balance(Float.valueOf(0))
                 .id(new UserWalletPK.Builder().userId(userID).walletId(ThreadLocalRandom.current().nextInt(0, 99999999))
                         .build())
