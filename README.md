@@ -1,6 +1,5 @@
 # grpc-wallet
 Based on Google RPC and Protocool Buffer - a multi threaded App that Allows Deposit, Withdrawal and Balance
-Docker + GRPC + Hibernate 
 
 ## Requirements
 The task consists of a wallet server and a wallet client. The wallet server will keep track of a users monetary balance in the system. The client will emulate users depositing and withdrawing funds.
