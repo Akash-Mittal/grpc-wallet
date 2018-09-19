@@ -20,9 +20,9 @@ import com.betpawa.wallet.DepositResponse;
 import com.betpawa.wallet.StatusMessage;
 import com.betpawa.wallet.WalletServiceGrpc;
 import com.betpawa.wallet.WalletServiceGrpc.WalletServiceBlockingStub;
+import com.betpawa.wallet.client.runner.Runner;
 import com.betpawa.wallet.WithdrawRequest;
 import com.betpawa.wallet.WithdrawResponse;
-import com.betpawa.wallet.client.enums.runner.Runner;
 
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;

@@ -1,27 +1,28 @@
-package com.betpawa.wallet.client.enums.runner;
+package com.betpawa.wallet.client.runner;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-import com.betpawa.wallet.client.WalletClient;
+import com.betpawa.wallet.client.domain.ClientParams;
 import com.betpawa.wallet.client.enums.ROUND;
 
 public class RoundRunner implements Runner {
     private String stats;
     private Integer userID;
+    private ClientParams clientParams;
 
     @Override
     public void run() {
-        for (Integer i = new Integer(1); i <= numberOfRounds; i++) {
+        for (int i = 1; i <= clientParams.getNumberOfRounds(); i++) {
             ROUND.values()[ThreadLocalRandom.current().nextInt(0, (ROUND.values().length))]
-                    .goExecute(WalletClient.futureStub, userID, stats + ":Round:" + i);
+                    .goExecute(clientParams.getFutureStub(), userID, stats + ":Round:" + i);
         }
-
     }
 
-    public RoundRunner(String stats, Integer userID) {
+    public RoundRunner(String stats, Integer userID, ClientParams clientParams) {
         super();
         this.stats = stats;
         this.userID = userID;
+        this.clientParams = clientParams;
     }
 
     public Integer getUserID() {
@@ -43,6 +44,14 @@ public class RoundRunner implements Runner {
 
     public void setStats(String stats) {
         this.stats = stats;
+    }
+
+    public ClientParams getClientParams() {
+        return clientParams;
+    }
+
+    public void setClientParams(ClientParams clientParams) {
+        this.clientParams = clientParams;
     }
 
 }

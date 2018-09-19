@@ -1,4 +1,4 @@
-package com.betpawa.wallet.client.enums.runner;
+package com.betpawa.wallet.client.runner;
 
 import java.util.concurrent.TimeUnit;
 
@@ -7,8 +7,8 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import com.betpawa.wallet.client.WalletClient;
-import com.betpawa.wallet.client.enums.runner.RoundRunner;
-import com.betpawa.wallet.client.enums.runner.Runner;
+import com.betpawa.wallet.client.runner.RoundRunner;
+import com.betpawa.wallet.client.runner.Runner;
 import com.betpawa.wallet.server.WalletServer;
 
 import io.grpc.ManagedChannel;

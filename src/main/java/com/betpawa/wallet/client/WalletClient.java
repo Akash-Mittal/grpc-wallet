@@ -15,7 +15,7 @@ import io.grpc.ManagedChannelBuilder;
 public class WalletClient {
     private static final Logger logger = LoggerFactory.getLogger(WalletClient.class);
     private final ManagedChannel channel;
-    public static WalletServiceFutureStub futureStub;
+    private final WalletServiceFutureStub futureStub;
 
     private AtomicLong rpcCount = new AtomicLong();
 
