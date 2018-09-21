@@ -123,11 +123,11 @@ public interface Client {
                         @Override
                         public void onFailure(Throwable t) {
                             logger.warn(Status.fromThrowable(t).getDescription());
-
+                            // Add to Unsuccessful List of Transactions
                         }
                     });
                 } catch (StatusRuntimeException e) {
-
+                    // Log and Throw
                 }
 
             }

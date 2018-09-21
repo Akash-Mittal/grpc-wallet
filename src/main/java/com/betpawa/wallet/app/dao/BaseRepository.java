@@ -3,6 +3,8 @@ package com.betpawa.wallet.app.dao;
 import java.util.List;
 import java.util.Map;
 
+import com.betpawa.wallet.exception.BPDataException;
+
 public interface BaseRepository<T> {
     public T get(Class<T> cl, Integer id);
 

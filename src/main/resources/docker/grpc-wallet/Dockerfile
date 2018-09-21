@@ -7,5 +7,5 @@ COPY build/libs/grpc-wallet.jar /app/grpc-wallet.jar
 ENTRYPOINT ["/usr/bin/java"]
 CMD ["-jar", "/app/grpc-wallet.jar"]
 
-EXPOSE 8080
+EXPOSE 1234
 

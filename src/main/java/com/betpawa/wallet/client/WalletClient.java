@@ -53,7 +53,7 @@ public class WalletClient {
 
     public static void main(String[] args) {
         try {
-            start("localhost", 1234, System.getProperties());
+            start("192.168.99.100", 1234, System.getProperties());
         } catch (Exception e) {
             logger.error("Excpetion while Starting Wallet Client", e);
         }
