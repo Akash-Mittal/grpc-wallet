@@ -64,9 +64,9 @@ public class WalletApp {
         if (server != null) {
             throw new IllegalStateException("Already started");
         }
-        server = ServerBuilder.forPort(8980).addService(new WalletService()).build();
+        server = ServerBuilder.forPort(1234).addService(new WalletService()).build();
         server.start();
-        logger.info("Server started, listening on " + 8980);
+        logger.info("Server started, listening on " + 1234);
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {

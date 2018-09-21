@@ -58,7 +58,7 @@ public class WalletServer {
      * Main method. This comment makes the linter happy.
      */
     public static void main(String[] args) throws Exception {
-        WalletServer server = new WalletServer(8980);
+        WalletServer server = new WalletServer(1234);
         server.start();
         server.blockUntilShutdown();
     }

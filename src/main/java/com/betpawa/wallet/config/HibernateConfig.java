@@ -4,14 +4,24 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HibernateConfig {
+    private static final Logger logger = LoggerFactory.getLogger(HibernateConfig.class);
+
     private static SessionFactory sessionFactory;
     static {
-        Configuration configuration = new Configuration().configure();
-        StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder()
-                .applySettings(configuration.getProperties());
-        sessionFactory = configuration.buildSessionFactory(builder.build());
+        try {
+            Configuration configuration = new Configuration().configure();
+            StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder()
+                    .applySettings(configuration.getProperties());
+            sessionFactory = configuration.buildSessionFactory(builder.build());
+
+        } catch (Exception e) {
+            logger.error("Error Initializing Database", e);
+            throw e;
+        }
     }
 
     public static SessionFactory getSessionFactory() {

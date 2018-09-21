@@ -21,6 +21,7 @@ public class UserWalletRepositoryImpl extends BaseRepositoryImpl<UserWallet> {
     }
 
     public UserWalletRepositoryImpl() {
+
         super(UserWallet.class, HibernateConfig.getSessionFactory());
     }
 
