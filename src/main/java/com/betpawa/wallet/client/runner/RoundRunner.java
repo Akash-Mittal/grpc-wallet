@@ -3,7 +3,7 @@ package com.betpawa.wallet.client.runner;
 import java.util.concurrent.ThreadLocalRandom;
 
 import com.betpawa.wallet.client.domain.ClientParams;
-import com.betpawa.wallet.client.enums.ROUND;
+import com.betpawa.wallet.client.enums.Client;
 
 public class RoundRunner implements Runner {
     private String stats;
@@ -13,7 +13,7 @@ public class RoundRunner implements Runner {
     @Override
     public void run() {
         for (int i = 1; i <= clientParams.getNumberOfRounds(); i++) {
-            ROUND.values()[ThreadLocalRandom.current().nextInt(0, (ROUND.values().length))]
+            Client.ROUND.values()[ThreadLocalRandom.current().nextInt(0, (Client.ROUND.values().length))]
                     .goExecute(clientParams.getFutureStub(), userID, stats + ":Round:" + i);
         }
     }

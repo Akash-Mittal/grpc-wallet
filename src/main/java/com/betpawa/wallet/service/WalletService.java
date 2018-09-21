@@ -14,6 +14,8 @@ import com.betpawa.wallet.WalletServiceGrpc.WalletServiceImplBase;
 import com.betpawa.wallet.WithdrawRequest;
 import com.betpawa.wallet.WithdrawResponse;
 import com.betpawa.wallet.auto.entities.generated.UserWallet;
+import com.betpawa.wallet.client.enums.Client;
+import com.betpawa.wallet.exception.BPServiceException;
 
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
@@ -24,10 +26,10 @@ public class WalletService extends WalletServiceImplBase implements UserWalletSe
     private static final Logger logger = LoggerFactory.getLogger(WalletService.class);
 
     @Override
-    public synchronized void deposit(DepositRequest request, StreamObserver<DepositResponse> responseObserver) {
+    public void deposit(DepositRequest request, StreamObserver<DepositResponse> responseObserver) {
+        Float balanceToADD = request.getAmount();
         try {
-            Float balanceToADD = request.getAmount();
-            if (checkAmountGreaterThanZero(balanceToADD)) {
+            if (Client.checkAmountGreaterThanZero(balanceToADD)) {
                 Float currentBalance = Float.valueOf(0);
                 UserWallet userWallet;
 
@@ -49,10 +51,11 @@ public class WalletService extends WalletServiceImplBase implements UserWalletSe
                 responseObserver.onError(new StatusRuntimeException(Status.FAILED_PRECONDITION
                         .withDescription(StatusMessage.AMOUNT_SHOULD_BE_GREATER_THAN_ZERO.name())));
             }
-        } catch (NotFoundException e) {
-            logger.warn(StatusMessage.USER_DOES_NOT_EXIST.name());
-            responseObserver.onError(new StatusRuntimeException(
-                    Status.FAILED_PRECONDITION.withDescription(StatusMessage.USER_DOES_NOT_EXIST.name())));
+        } catch (BPServiceException e) {
+            responseObserver.onError(new StatusRuntimeException(e.getStatus().withDescription(e.getMessage())));
+        } catch (Exception e) {
+            responseObserver.onError(
+                    new StatusRuntimeException(Status.UNKNOWN.withDescription(StatusMessage.UNRECOGNIZED.name())));
         }
     }
 
@@ -62,7 +65,8 @@ public class WalletService extends WalletServiceImplBase implements UserWalletSe
         logger.info("Request Recieved for UserID:{} For Amount:{}{} ", request.getUserID(), request.getAmount(),
                 request.getCurrency());
         try {
-            if (checkAmountGreaterThanZero(request.getAmount())) {
+
+            if (Client.checkAmountGreaterThanZero(request.getAmount())) {
                 // if (FACTORY.GET.getUserService().get(request.getUserID()) != null) {
                 Float balanceToWithdraw = request.getAmount();
                 UserWallet userWallet = getByUserIDCurrency(request.getUserID(), request.getCurrency(), true);
@@ -71,7 +75,8 @@ public class WalletService extends WalletServiceImplBase implements UserWalletSe
                     Float newBalance = existingBalance - balanceToWithdraw;
                     userWallet.setBalance(newBalance);
                     update(userWallet);
-                    responseObserver.onNext(WithdrawResponse.newBuilder().build());
+                    responseObserver.onNext(WithdrawResponse.newBuilder().setBalance(newBalance)
+                            .setCurrency(request.getCurrency()).build());
                     responseObserver.onCompleted();
                     logger.info("Wallet Updated SuccessFully New Balance:{}", newBalance);
 
@@ -84,10 +89,11 @@ public class WalletService extends WalletServiceImplBase implements UserWalletSe
                 responseObserver.onError(new StatusRuntimeException(Status.FAILED_PRECONDITION
                         .withDescription(StatusMessage.AMOUNT_SHOULD_BE_GREATER_THAN_ZERO.name())));
             }
-        } catch (NotFoundException notFoundException) {
-            logger.warn(StatusMessage.USER_DOES_NOT_EXIST.name());
-            responseObserver.onError(new StatusRuntimeException(
-                    Status.FAILED_PRECONDITION.withDescription(StatusMessage.USER_DOES_NOT_EXIST.name())));
+        } catch (BPServiceException e) {
+            responseObserver.onError(new StatusRuntimeException(e.getStatus().withDescription(e.getMessage())));
+        } catch (Exception e) {
+            responseObserver.onError(
+                    new StatusRuntimeException(Status.UNKNOWN.withDescription(StatusMessage.UNRECOGNIZED.name())));
         }
     }
 
@@ -110,15 +116,6 @@ public class WalletService extends WalletServiceImplBase implements UserWalletSe
 
         }
 
-    }
-
-    private boolean checkAmountGreaterThanZero(Float amount) {
-        boolean valid = false;
-
-        if (amount > 0F && amount < Float.MAX_VALUE / 2F) {
-            valid = true;
-        }
-        return valid;
     }
 
 }

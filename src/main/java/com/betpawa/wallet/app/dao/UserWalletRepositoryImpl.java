@@ -9,6 +9,7 @@ import org.hibernate.SessionFactory;
 import com.betpawa.wallet.CURRENCY;
 import com.betpawa.wallet.auto.entities.generated.UserWallet;
 import com.betpawa.wallet.config.HibernateConfig;
+import com.betpawa.wallet.exception.BPDataException;
 
 public class UserWalletRepositoryImpl extends BaseRepositoryImpl<UserWallet> {
 
@@ -25,18 +26,23 @@ public class UserWalletRepositoryImpl extends BaseRepositoryImpl<UserWallet> {
         super(UserWallet.class, HibernateConfig.getSessionFactory());
     }
 
-    public List<UserWallet> getByUserIDCurrency(Integer userID, CURRENCY currency) {
+    public List<UserWallet> getByUserIDCurrency(Integer userID, CURRENCY currency) throws BPDataException {
 
         Map<String, Object> params = new HashMap<>();
         params.put("userID", userID);
         params.put("currency", currency.name());
-        return super.query("from UserWallet where user_id = :userID and currency =:currency", params);
+        List<UserWallet> userWallets = super.query("from UserWallet where user_id = :userID and currency =:currency",
+                params);
+        super.validate(userWallets);
+        return userWallets;
     }
 
-    public List<UserWallet> getByUserID(Integer userID) {
+    public List<UserWallet> getByUserID(Integer userID) throws BPDataException {
         Map<String, Object> params = new HashMap<>();
         params.put("userID", userID);
-        return super.query("from UserWallet where user_id = :userID", params);
+        List<UserWallet> userWallets = super.query("from UserWallet where user_id = :userID", params);
+        super.validate(userWallets);
+        return userWallets;
     }
 
 }

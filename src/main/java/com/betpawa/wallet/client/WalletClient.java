@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import com.betpawa.wallet.WalletServiceGrpc;
 import com.betpawa.wallet.WalletServiceGrpc.WalletServiceFutureStub;
 import com.betpawa.wallet.client.domain.ClientParams;
+import com.betpawa.wallet.client.enums.Client;
 import com.betpawa.wallet.client.runner.UserRunner;
 
 import io.grpc.ManagedChannel;
@@ -51,24 +52,40 @@ public class WalletClient {
     }
 
     public static void main(String[] args) {
-        final ExecutorService pool = Executors.newFixedThreadPool(10);
-
         try {
-            Properties props = System.getProperties();
-            Integer numberOfUsers = Integer.valueOf(props.getProperty("wallet.user", "1"));
-            Integer numberOfRequests = Integer.valueOf(props.getProperty("wallet.request", "1"));
-            Integer numberOfRounds = Integer.valueOf(props.getProperty("wallet.round", "1"));
-
-            WalletClient client = new WalletClient("localhost", 1234);
-            ClientParams clientParams = new ClientParams(numberOfUsers, numberOfRequests, numberOfRounds,
-                    client.futureStub, pool);
-            pool.execute(new UserRunner(clientParams));
-            pool.awaitTermination(5, TimeUnit.SECONDS);
-
-        } catch (InterruptedException e) {
-            logger.error("Excpetion while Closing thread pool", e);
-        } finally {
-            pool.shutdownNow();
+            start("localhost", 1234, System.getProperties());
+        } catch (Exception e) {
+            logger.error("Excpetion while Starting Wallet Client", e);
         }
     }
+
+    public static void start(String host, int port, final Properties props) throws InterruptedException {
+
+        final ExecutorService pool = Executors.newFixedThreadPool(10);
+        WalletClient client = null;
+        try {
+            logger.info("Starting client at host {} port {}", host, port);
+            Integer numberOfUsers = Integer.valueOf(props.getProperty("wallet.user", "10"));
+            Integer numberOfRequests = Integer.valueOf(props.getProperty("wallet.request", "10"));
+            Integer numberOfRounds = Integer.valueOf(props.getProperty("wallet.round", "1"));
+            client = new WalletClient(host, port);
+            final ClientParams clientParams = new ClientParams(numberOfUsers, numberOfRequests, numberOfRounds,
+                    client.futureStub, pool);
+            logger.info("Executing User Requests With: " + clientParams);
+            logger.info("Client Will Terminate in: " + Client.getOptimizedWaitingTime(clientParams) + TimeUnit.SECONDS);
+
+            pool.execute(new UserRunner(clientParams));
+            pool.awaitTermination(Client.getOptimizedWaitingTime(clientParams), TimeUnit.SECONDS);
+            pool.shutdown();
+        } catch (Exception e) {
+            logger.error("Exception while Starting Wallet Client", e);
+            throw e;
+        } finally {
+            pool.shutdownNow();
+            if (client != null) {
+                client.shutdown();
+            }
+        }
+    }
+
 }

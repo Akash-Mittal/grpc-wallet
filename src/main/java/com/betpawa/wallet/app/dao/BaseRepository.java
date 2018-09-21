@@ -14,9 +14,9 @@ public interface BaseRepository<T> {
 
     public void delete(T object);
 
-    public List<T> query(String hsql, Map<String, Object> params);
+    public List<T> query(String hsql, Map<String, Object> params) throws BPDataException;
 
-    public List<T> getAll(Class<T> cl);
+    public List<T> getAll(Class<T> cl) throws BPDataException;
 
-    public void deleteAll(Class<T> cl);
+    public void deleteAll(Class<T> cl) throws BPDataException;
 }

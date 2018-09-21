@@ -1,28 +1,34 @@
 package com.betpawa.wallet.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import com.betpawa.wallet.CURRENCY;
-import com.betpawa.wallet.StatusMessage;
 import com.betpawa.wallet.auto.entities.generated.UserWallet;
 import com.betpawa.wallet.auto.entities.generated.UserWalletPK;
 import com.betpawa.wallet.enums.FACTORY;
+import com.betpawa.wallet.exception.BPDataException;
+import com.betpawa.wallet.exception.BPServiceException;
 
+import io.grpc.Status;
 import javassist.NotFoundException;
 
 public interface UserWalletService {
 
-    default UserWallet getByUserIDCurrency(Integer userID, CURRENCY currency, boolean throwException)
-            throws NotFoundException {
-        List<UserWallet> userWallets = FACTORY.GET.userWalletRepo().getByUserIDCurrency(userID, currency);
-        if (userWallets == null || userWallets.isEmpty() && !throwException) {
-            return getDefault(userID, currency);
-        } else if (userWallets == null || userWallets.isEmpty() && throwException) {
-            throw new NotFoundException(StatusMessage.USER_DOES_NOT_EXIST.name());
-        } else {
-            return userWallets.get(0);
+    default UserWallet getByUserIDCurrency(Integer userID, CURRENCY currency, boolean throwException) {
+        List<UserWallet> userWallets = new ArrayList<>();
+        try {
+            userWallets = FACTORY.GET.userWalletRepo().getByUserIDCurrency(userID, currency);
+        } catch (BPDataException e) {
+            if (throwException) {
+                throw new BPServiceException(e.getMessage(), Status.NOT_FOUND);
+            } else {
+                userWallets.add(getDefault(userID, currency));
+            }
+
         }
+        return userWallets.get(0);
     }
 
     default UserWallet getDefault(Integer userID, CURRENCY currency) {
@@ -35,9 +41,6 @@ public interface UserWalletService {
 
     default List<UserWallet> getByUserID(Integer userID) throws NotFoundException {
         List<UserWallet> userWallets = FACTORY.GET.userWalletRepo().getByUserID(userID);
-        if (userWallets == null || userWallets.isEmpty()) {
-            throw new NotFoundException(StatusMessage.USER_DOES_NOT_EXIST.name());
-        }
         return userWallets;
     }
 

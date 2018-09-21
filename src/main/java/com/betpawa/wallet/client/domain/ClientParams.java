@@ -42,4 +42,9 @@ public final class ClientParams {
         return pool;
     }
 
+    @Override
+    public String toString() {
+        return "ClientParams [numberOfUsers=" + numberOfUsers + ", numberOfRequests=" + numberOfRequests
+                + ", numberOfRounds=" + numberOfRounds;
+    }
 }

@@ -6,8 +6,18 @@ import java.util.Map;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.exception.JDBCConnectionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.betpawa.wallet.auto.entities.generated.UserWallet;
+import com.betpawa.wallet.exception.BPDataException;
+
+import io.grpc.Status;
 
 public class BaseRepositoryImpl<T> implements BaseRepository<T> {
+    private static final Logger logger = LoggerFactory.getLogger(BaseRepositoryImpl.class);
+
     private SessionFactory sessionFactory;
 
     public BaseRepositoryImpl(Class<T> clazz, SessionFactory sessionFactory) {
@@ -61,36 +71,51 @@ public class BaseRepositoryImpl<T> implements BaseRepository<T> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<T> query(String hsql, Map<String, Object> params) {
+    public List<T> query(String hsql, Map<String, Object> params) throws BPDataException {
         Session session = null;
         List<T> result = null;
-        session = sessionFactory.getCurrentSession();
-        session.beginTransaction();
-        Query query = session.createQuery(hsql);
-        if (params != null) {
-            for (String i : params.keySet()) {
-                query.setParameter(i, params.get(i));
+        try {
+            session = sessionFactory.getCurrentSession();
+            session.beginTransaction();
+            Query query = session.createQuery(hsql);
+            if (params != null) {
+                for (String i : params.keySet()) {
+                    query.setParameter(i, params.get(i));
+                }
             }
+            if ((hsql.toUpperCase().indexOf("DELETE") == -1) && (hsql.toUpperCase().indexOf("UPDATE") == -1)
+                    && (hsql.toUpperCase().indexOf("INSERT") == -1)) {
+                result = query.list();
+            } else {
+            }
+            session.getTransaction().commit();
+        } catch (JDBCConnectionException e) {
+            throw new BPDataException("Error While Getting new Database Connection:", Status.DATA_LOSS);
+        } catch (Exception e) {
+            throw new BPDataException("Unkown Error While Getting Querying Database:", Status.DATA_LOSS);
         }
-
-        if ((hsql.toUpperCase().indexOf("DELETE") == -1) && (hsql.toUpperCase().indexOf("UPDATE") == -1)
-                && (hsql.toUpperCase().indexOf("INSERT") == -1)) {
-            result = query.list();
-        } else {
-        }
-        session.getTransaction().commit();
         return result;
 
     }
 
     @Override
-    public List<T> getAll(Class<T> clazz) {
+    public List<T> getAll(Class<T> clazz) throws BPDataException {
         return query("from " + clazz.getName(), null);
     }
 
     @Override
-    public void deleteAll(Class<T> clazz) {
+    public void deleteAll(Class<T> clazz) throws BPDataException {
         query("delete from " + clazz.getName(), null);
+
+    }
+
+    public void validate(final List<UserWallet> userWallets) {
+        if (userWallets == null) {
+            throw new BPDataException("List is Null", Status.DATA_LOSS);
+        }
+        if (userWallets.isEmpty()) {
+            throw new BPDataException("List is Empty", Status.DATA_LOSS);
+        }
 
     }
 
