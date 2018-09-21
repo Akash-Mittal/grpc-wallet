@@ -7,6 +7,7 @@ import java.util.Map;
 import org.hibernate.SessionFactory;
 
 import com.betpawa.wallet.CURRENCY;
+import com.betpawa.wallet.StatusMessage;
 import com.betpawa.wallet.auto.entities.generated.UserWallet;
 import com.betpawa.wallet.config.HibernateConfig;
 import com.betpawa.wallet.exception.BPDataException;
@@ -33,7 +34,7 @@ public class UserWalletRepositoryImpl extends BaseRepositoryImpl<UserWallet> {
         params.put("currency", currency.name());
         List<UserWallet> userWallets = super.query("from UserWallet where user_id = :userID and currency =:currency",
                 params);
-        super.validate(userWallets);
+        super.validate(userWallets, StatusMessage.USER_DOES_NOT_EXIST.name());
         return userWallets;
     }
 
@@ -41,7 +42,7 @@ public class UserWalletRepositoryImpl extends BaseRepositoryImpl<UserWallet> {
         Map<String, Object> params = new HashMap<>();
         params.put("userID", userID);
         List<UserWallet> userWallets = super.query("from UserWallet where user_id = :userID", params);
-        super.validate(userWallets);
+        super.validate(userWallets, StatusMessage.USER_DOES_NOT_EXIST.name());
         return userWallets;
     }
 

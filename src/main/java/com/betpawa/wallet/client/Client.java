@@ -1,4 +1,6 @@
-package com.betpawa.wallet.client.enums;
+package com.betpawa.wallet.client;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,14 +13,11 @@ import com.betpawa.wallet.DepositResponse;
 import com.betpawa.wallet.WalletServiceGrpc.WalletServiceFutureStub;
 import com.betpawa.wallet.WithdrawRequest;
 import com.betpawa.wallet.WithdrawResponse;
-import com.betpawa.wallet.client.WalletClient;
-import com.betpawa.wallet.client.domain.ClientParams;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import io.grpc.Status;
-import io.grpc.StatusRuntimeException;
 
 public interface Client {
 
@@ -108,27 +107,25 @@ public interface Client {
             @Override
             public void doTransact(final WalletServiceFutureStub futureStub, final Integer userID, final Float amount,
                     final CURRENCY currency, final String stats) {
-                try {
-                    logger.info(stats + DEPOSIT.name());
+                logger.info(stats + DEPOSIT.name());
 
-                    ListenableFuture<DepositResponse> response = futureStub.deposit(DepositRequest.newBuilder()
-                            .setAmount(amount).setUserID(userID).setCurrency(currency).build());
-                    // response.addListener(() -> rpcCount.incrementAndGet(), MoreExecutors.directExecutor());
-                    Futures.addCallback(response, new FutureCallback<DepositResponse>() {
-                        @Override
-                        public void onSuccess(DepositResponse result) {
-                            logger.info("Deposited Succesfully", result.getCurrencyValue());
-                        }
+                ListenableFuture<DepositResponse> response = futureStub.deposit(
+                        DepositRequest.newBuilder().setAmount(amount).setUserID(userID).setCurrency(currency).build());
+                Futures.addCallback(response, new FutureCallback<DepositResponse>() {
+                    @Override
+                    public void onSuccess(DepositResponse result) {
+                        getGood().incrementAndGet();
+                        logger.info("Deposited Succesfully", result.getCurrencyValue());
 
-                        @Override
-                        public void onFailure(Throwable t) {
-                            logger.warn(Status.fromThrowable(t).getDescription());
-                            // Add to Unsuccessful List of Transactions
-                        }
-                    });
-                } catch (StatusRuntimeException e) {
-                    // Log and Throw
-                }
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                        getNotSoGood().incrementAndGet();
+
+                        logger.warn(Status.fromThrowable(t).getDescription());
+                    }
+                });
 
             }
         },
@@ -145,11 +142,13 @@ public interface Client {
                 Futures.addCallback(response, new FutureCallback<WithdrawResponse>() {
                     @Override
                     public void onSuccess(WithdrawResponse result) {
+                        getGood().incrementAndGet();
                         logger.info("Withdrawn Succesfully" + result.getBalance());
                     }
 
                     @Override
                     public void onFailure(Throwable t) {
+                        getNotSoGood().incrementAndGet();
                         logger.warn(Status.fromThrowable(t).getDescription());
                     }
                 });
@@ -169,11 +168,13 @@ public interface Client {
                 Futures.addCallback(response, new FutureCallback<BalanceResponse>() {
                     @Override
                     public void onSuccess(BalanceResponse result) {
+                        getGood().incrementAndGet();
                         logger.info("Balance Checked Succesfully" + result);
                     }
 
                     @Override
                     public void onFailure(Throwable t) {
+                        getNotSoGood().incrementAndGet();
                         logger.warn(Status.fromThrowable(t).getDescription());
                     }
                 });
@@ -185,9 +186,28 @@ public interface Client {
                 final Float amount, final CURRENCY currency, final String stats);
 
         private static final Logger logger = LoggerFactory.getLogger(WalletClient.class);
+        private AtomicInteger good = new AtomicInteger(0);
+        private AtomicInteger notSoGood = new AtomicInteger(0);
+
+        public synchronized AtomicInteger getGood() {
+            return good;
+        }
+
+        public void setGood(AtomicInteger good) {
+            this.good = good;
+        }
+
+        public synchronized AtomicInteger getNotSoGood() {
+            return notSoGood;
+        }
+
+        public void setNotSoGood(AtomicInteger notSoGood) {
+            this.notSoGood = notSoGood;
+        }
+
     }
 
-    static Long getOptimizedWaitingTime(final ClientParams clientParams) {
+    static Long getOptimizedWaitingTime(final WalletClientParams clientParams) {
         Long defaultWaitTime = Long.valueOf(1);
         defaultWaitTime = Long.valueOf((clientParams.getNumberOfUsers() + clientParams.getNumberOfRequests()
                 + clientParams.getNumberOfRounds()) / 3);
@@ -206,4 +226,8 @@ public interface Client {
     static void pingServer() {
         // For Health Check
     }
+}
+
+enum STATS {
+    SUCCESS, FAILURE;
 }

@@ -18,103 +18,29 @@ USE `bp_wallet`;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `bp_currency`
+-- Table structure for table `user_wallet`
 --
 
-DROP TABLE IF EXISTS `bp_currency`;
+DROP TABLE IF EXISTS `user_wallet`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
  SET character_set_client = utf8mb4 ;
-CREATE TABLE `bp_currency` (
-  `currency_id` int(11) NOT NULL AUTO_INCREMENT,
-  `currency_val` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`currency_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `bp_currency`
---
-
-LOCK TABLES `bp_currency` WRITE;
-/*!40000 ALTER TABLE `bp_currency` DISABLE KEYS */;
-INSERT INTO `bp_currency` VALUES (1,'USD'),(2,'EUR'),(3,'GBP');
-/*!40000 ALTER TABLE `bp_currency` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `bp_user`
---
-
-DROP TABLE IF EXISTS `bp_user`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
- SET character_set_client = utf8mb4 ;
-CREATE TABLE `bp_user` (
-  `user_id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_name` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `bp_user`
---
-
-LOCK TABLES `bp_user` WRITE;
-/*!40000 ALTER TABLE `bp_user` DISABLE KEYS */;
-INSERT INTO `bp_user` VALUES (1,'Mike'),VALUES (2,'Adam');
-/*!40000 ALTER TABLE `bp_user` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `bp_user_currency`
---
-
-DROP TABLE IF EXISTS `bp_user_currency`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
- SET character_set_client = utf8mb4 ;
-CREATE TABLE `bp_user_currency` (
-  `user_currency_id` int(11) NOT NULL AUTO_INCREMENT,
-  `currency_id` int(11) DEFAULT NULL,
-  `user_id` int(11) DEFAULT NULL,
-  PRIMARY KEY (`user_currency_id`),
-  KEY `FK_eu9rybh7u0sqk99ooym123556` (`currency_id`),
-  KEY `FK_hwbw1arry2jcl5l502jofjp2b` (`user_id`),
-  CONSTRAINT `FK_eu9rybh7u0sqk99ooym123556` FOREIGN KEY (`currency_id`) REFERENCES `bp_currency` (`currency_id`),
-  CONSTRAINT `FK_hwbw1arry2jcl5l502jofjp2b` FOREIGN KEY (`user_id`) REFERENCES `bp_user` (`user_id`)
+CREATE TABLE `user_wallet` (
+  `user_id` int(11) NOT NULL,
+  `wallet_id` int(11) NOT NULL,
+  `balance` float NOT NULL,
+  `currency` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`user_id`,`wallet_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `bp_user_currency`
+-- Dumping data for table `user_wallet`
 --
 
-LOCK TABLES `bp_user_currency` WRITE;
-INSERT INTO `bp_user_currency`  VALUES (1, 1, 1),(2, 2, 1);
-UNLOCK TABLES;
-
---
--- Table structure for table `bp_user_wallet`
---
-
-DROP TABLE IF EXISTS `bp_user_wallet`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
- SET character_set_client = utf8mb4 ;
-CREATE TABLE `bp_user_wallet` (
-  `user_wallet_id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_balance` float DEFAULT NULL,
-  `user_currency_id` int(11) DEFAULT NULL,
-  PRIMARY KEY (`user_wallet_id`),
-  KEY `FK_pyvdoi4q1boy438lwfu52kspp` (`user_currency_id`),
-  CONSTRAINT `FK_pyvdoi4q1boy438lwfu52kspp` FOREIGN KEY (`user_currency_id`) REFERENCES `bp_user_currency` (`user_currency_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `bp_user_wallet`
---
-
-LOCK TABLES `bp_user_wallet` WRITE;
-INSERT INTO `bp_user_wallet` VALUES (1, 100, 1),(2, 100, 2);
+LOCK TABLES `user_wallet` WRITE;
+/*!40000 ALTER TABLE `user_wallet` DISABLE KEYS */;
+INSERT INTO `user_wallet` VALUES (1,11727595,200,'GBP'),(1,65444777,200,'USD'),(1,99146551,400,'EUR'),(2,63959917,500,'EUR'),(2,70979155,300,'GBP'),(2,87473771,100,'USD'),(3,12053824,400,'USD'),(3,31372877,0,'GBP'),(3,64092209,400,'EUR'),(4,74372284,200,'GBP'),(4,82616109,300,'USD'),(4,89565991,300,'EUR'),(5,37952159,400,'GBP'),(5,77322270,300,'USD'),(6,3413960,0,'USD'),(6,7426125,400,'EUR'),(6,62213533,300,'GBP'),(7,79160197,500,'EUR'),(7,79388507,0,'GBP'),(7,89050800,200,'USD'),(8,43034860,300,'GBP'),(8,62137418,300,'USD'),(8,88647242,400,'EUR'),(9,45662914,100,'GBP'),(9,56889761,300,'EUR'),(9,99765788,0,'USD'),(10,38821278,200,'GBP'),(10,88038245,100,'USD'),(10,91013549,400,'EUR');
+/*!40000 ALTER TABLE `user_wallet` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -126,4 +52,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-09-16 23:17:25
+-- Dump completed on 2018-09-21 23:07:20

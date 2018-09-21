@@ -1,15 +1,15 @@
 package com.betpawa.wallet.client.runner;
 
-import com.betpawa.wallet.client.domain.ClientParams;
+import com.betpawa.wallet.client.WalletClientParams;
 
 public class UserRunner implements Runner {
-    private ClientParams clientParams;
+    private WalletClientParams clientParams;
 
-    public ClientParams getClientParams() {
+    public WalletClientParams getClientParams() {
         return clientParams;
     }
 
-    public void setClientParams(ClientParams clientParams) {
+    public void setClientParams(WalletClientParams clientParams) {
         this.clientParams = clientParams;
     }
 
@@ -20,7 +20,7 @@ public class UserRunner implements Runner {
         }
     }
 
-    public UserRunner(ClientParams clientParams) {
+    public UserRunner(WalletClientParams clientParams) {
         super();
         this.clientParams = clientParams;
     }

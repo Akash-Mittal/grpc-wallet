@@ -109,12 +109,12 @@ public class BaseRepositoryImpl<T> implements BaseRepository<T> {
 
     }
 
-    public void validate(final List<UserWallet> userWallets) {
+    public void validate(final List<UserWallet> userWallets, String message) {
         if (userWallets == null) {
-            throw new BPDataException("List is Null", Status.DATA_LOSS);
+            throw new BPDataException(message, Status.NOT_FOUND);
         }
         if (userWallets.isEmpty()) {
-            throw new BPDataException("List is Empty", Status.DATA_LOSS);
+            throw new BPDataException(message, Status.NOT_FOUND);
         }
 
     }

@@ -2,13 +2,13 @@ package com.betpawa.wallet.client.runner;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-import com.betpawa.wallet.client.domain.ClientParams;
-import com.betpawa.wallet.client.enums.Client;
+import com.betpawa.wallet.client.Client;
+import com.betpawa.wallet.client.WalletClientParams;
 
 public class RoundRunner implements Runner {
     private String stats;
     private Integer userID;
-    private ClientParams clientParams;
+    private WalletClientParams clientParams;
 
     @Override
     public void run() {
@@ -18,7 +18,7 @@ public class RoundRunner implements Runner {
         }
     }
 
-    public RoundRunner(String stats, Integer userID, ClientParams clientParams) {
+    public RoundRunner(String stats, Integer userID, WalletClientParams clientParams) {
         super();
         this.stats = stats;
         this.userID = userID;
@@ -46,11 +46,11 @@ public class RoundRunner implements Runner {
         this.stats = stats;
     }
 
-    public ClientParams getClientParams() {
+    public WalletClientParams getClientParams() {
         return clientParams;
     }
 
-    public void setClientParams(ClientParams clientParams) {
+    public void setClientParams(WalletClientParams clientParams) {
         this.clientParams = clientParams;
     }
 

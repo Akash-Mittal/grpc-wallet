@@ -1,11 +1,11 @@
 package com.betpawa.wallet.client.runner;
 
-import com.betpawa.wallet.client.domain.ClientParams;
+import com.betpawa.wallet.client.WalletClientParams;
 
 public class RequestRunner implements Runner {
     private String stats;
     private Integer userID;
-    private ClientParams clientParams;
+    private WalletClientParams clientParams;
 
     @Override
     public void run() {
@@ -14,11 +14,11 @@ public class RequestRunner implements Runner {
         }
     }
 
-    public ClientParams getClientParams() {
+    public WalletClientParams getClientParams() {
         return clientParams;
     }
 
-    public void setClientParams(ClientParams clientParams) {
+    public void setClientParams(WalletClientParams clientParams) {
         this.clientParams = clientParams;
     }
 
@@ -30,7 +30,7 @@ public class RequestRunner implements Runner {
         this.userID = userID;
     }
 
-    public RequestRunner(String stats, Integer userID, ClientParams clientParams) {
+    public RequestRunner(String stats, Integer userID, WalletClientParams clientParams) {
         super();
         this.stats = stats;
         this.userID = userID;

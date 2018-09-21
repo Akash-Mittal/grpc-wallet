@@ -1,10 +1,10 @@
-package com.betpawa.wallet.client.domain;
+package com.betpawa.wallet.client;
 
 import java.util.concurrent.ExecutorService;
 
 import com.betpawa.wallet.WalletServiceGrpc.WalletServiceFutureStub;
 
-public final class ClientParams {
+public final class WalletClientParams {
 
     private final Integer numberOfUsers;
     private final Integer numberOfRequests;
@@ -16,7 +16,7 @@ public final class ClientParams {
         return numberOfUsers;
     }
 
-    public ClientParams(Integer numberOfUsers, Integer numberOfRequests, Integer numberOfRounds,
+    public WalletClientParams(Integer numberOfUsers, Integer numberOfRequests, Integer numberOfRounds,
             WalletServiceFutureStub futureStub, ExecutorService pool) {
         super();
         this.numberOfUsers = numberOfUsers;
