@@ -107,8 +107,10 @@ public interface Client {
 
         DEPOSIT {
             @Override
-            public void doTransact(final WalletServiceFutureStub futureStub, final Integer userID, final Float amount,
-                    final CURRENCY currency, final String stats) {
+            public ClientResponse doTransact(final WalletServiceFutureStub futureStub, final Integer userID,
+                    final Float amount, final CURRENCY currency, final String stats) {
+                final ClientResponse clientResponse = new ClientResponse.Builder()
+                        .execution_STATUS(CLIENT_EXECUTION_STATUS.FAIL).build();
                 logger.info(stats + DEPOSIT.name());
 
                 ListenableFuture<DepositResponse> response = futureStub.deposit(
@@ -118,24 +120,25 @@ public interface Client {
                     public void onSuccess(DepositResponse result) {
 
                         logger.info("Deposited Succesfully", result.getCurrencyValue());
-
+                        clientResponse.setExecution_STATUS(CLIENT_EXECUTION_STATUS.SUCCESS);
+                        clientResponse.setDepositResponse(result);
                     }
 
                     @Override
                     public void onFailure(Throwable t) {
-
                         logger.warn(Status.fromThrowable(t).getDescription());
                     }
                 });
-
+                return clientResponse;
             }
         },
         WITHDRAW {
             @Override
-            public void doTransact(final WalletServiceFutureStub futureStub, final Integer userID, final Float amount,
-                    final CURRENCY currency, final String stats) {
+            public ClientResponse doTransact(final WalletServiceFutureStub futureStub, final Integer userID,
+                    final Float amount, final CURRENCY currency, final String stats) {
                 logger.info(stats + WITHDRAW.name());
-
+                final ClientResponse clientResponse = new ClientResponse.Builder()
+                        .execution_STATUS(CLIENT_EXECUTION_STATUS.FAIL).build();
                 ListenableFuture<WithdrawResponse> response = null;
                 response = futureStub.withdraw(
                         WithdrawRequest.newBuilder().setUserID(userID).setAmount(amount).setCurrency(currency).build());
@@ -144,6 +147,8 @@ public interface Client {
                     public void onSuccess(WithdrawResponse result) {
 
                         logger.info("Withdrawn Succesfully" + result.getBalance());
+                        clientResponse.setExecution_STATUS(CLIENT_EXECUTION_STATUS.SUCCESS);
+                        clientResponse.setWithdrawResponse(result);
                     }
 
                     @Override
@@ -151,13 +156,16 @@ public interface Client {
                         logger.warn(Status.fromThrowable(t).getDescription());
                     }
                 });
+                return clientResponse;
 
             }
         },
         BALANCE {
             @Override
-            public void doTransact(final WalletServiceFutureStub futureStub, final Integer userID, final Float amount,
-                    final CURRENCY currency, final String stats) {
+            public ClientResponse doTransact(final WalletServiceFutureStub futureStub, final Integer userID,
+                    final Float amount, final CURRENCY currency, final String stats) {
+                final ClientResponse clientResponse = new ClientResponse.Builder()
+                        .execution_STATUS(CLIENT_EXECUTION_STATUS.FAIL).build();
                 logger.info(stats + BALANCE.name());
                 ListenableFuture<BalanceResponse> response = futureStub
                         .balance(BalanceRequest.newBuilder().setUserID(userID).build());
@@ -165,6 +173,8 @@ public interface Client {
                     @Override
                     public void onSuccess(BalanceResponse result) {
                         logger.info("Balance Checked for user:{} Amount:{}", userID, buildGetBalanceLogLine(result));
+                        clientResponse.setExecution_STATUS(CLIENT_EXECUTION_STATUS.SUCCESS);
+                        clientResponse.setBalanceResponse(result);
                     }
 
                     @Override
@@ -172,11 +182,12 @@ public interface Client {
                         logger.warn(Status.fromThrowable(t).getDescription());
                     }
                 });
+                return clientResponse;
 
             }
         };
 
-        public abstract void doTransact(final WalletServiceFutureStub futureStub, final Integer userID,
+        public abstract ClientResponse doTransact(final WalletServiceFutureStub futureStub, final Integer userID,
                 final Float amount, final CURRENCY currency, final String stats);
 
         private static final Logger logger = LoggerFactory.getLogger(TRANSACTION.class);
@@ -208,5 +219,9 @@ public interface Client {
             stringBuilder.append(balance.getAmount()).append(balance.getCurrency().name()).append(" ");
         });
         return stringBuilder.toString();
+    }
+
+    enum CLIENT_EXECUTION_STATUS {
+        SUCCESS, FAIL;
     }
 }
