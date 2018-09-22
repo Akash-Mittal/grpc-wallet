@@ -68,17 +68,19 @@ public class WalletClient implements Client {
         WalletClient client = null;
         try {
             logger.info("Starting client at host {} port {}", host, port);
-            Integer numberOfUsers = Integer.valueOf(props.getProperty("wallet.user", "1"));
-            Integer numberOfRequests = Integer.valueOf(props.getProperty("wallet.request", "1"));
-            Integer numberOfRounds = Integer.valueOf(props.getProperty("wallet.round", "3"));
+            Integer numberOfUsers = Integer.valueOf(props.getProperty("wallet.user", "20"));
+            Integer numberOfRequests = Integer.valueOf(props.getProperty("wallet.request", "2"));
+            Integer numberOfRounds = Integer.valueOf(props.getProperty("wallet.round", "2"));
             client = new WalletClient(host, port);
             final WalletClientParams clientParams = new WalletClientParams(numberOfUsers, numberOfRequests,
                     numberOfRounds, client.futureStub, pool);
-            logger.info("Executing User Requests With: " + clientParams);
-            logger.info("Client Will Terminate in: " + Client.getOptimizedWaitingTime(clientParams) + TimeUnit.SECONDS);
+            logger.info("Executing User Requests With:{}", clientParams);
+            logger.info("Client Will Terminate in:{} {} ", Client.getOptimizedWaitingTime(clientParams),
+                    TimeUnit.SECONDS.name());
 
             pool.execute(new UserRunner(clientParams));
             pool.awaitTermination(Client.getOptimizedWaitingTime(clientParams), TimeUnit.SECONDS);
+            logger.info("************** SHUTTING NOW************");
             pool.shutdown();
         } catch (Exception e) {
             logger.error("Exception while Starting Wallet Client", e);

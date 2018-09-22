@@ -19,6 +19,10 @@ import io.grpc.Status;
 
 public interface Client {
 
+    int MEAN_FACTOR = 3;
+    int DEFAULT_WAIT_TIME = 1;
+    int AVERAGE_RPC_PER_ROUND = 7;
+
     enum AMOUNT {
         ZERO(Float.valueOf(0)), HUNDERED(Float.valueOf(100)), TWOHUNDERED(Float.valueOf(200)), THREEHUNDERED(
                 Float.valueOf(300)), FOURHUNDERED(Float.valueOf(400)), FIVEHUNDERED(Float.valueOf(5000));
@@ -135,7 +139,6 @@ public interface Client {
                 ListenableFuture<WithdrawResponse> response = null;
                 response = futureStub.withdraw(
                         WithdrawRequest.newBuilder().setUserID(userID).setAmount(amount).setCurrency(currency).build());
-                // response.addListener(() -> rpcCount.incrementAndGet(), MoreExecutors.directExecutor());
                 Futures.addCallback(response, new FutureCallback<WithdrawResponse>() {
                     @Override
                     public void onSuccess(WithdrawResponse result) {
@@ -145,7 +148,6 @@ public interface Client {
 
                     @Override
                     public void onFailure(Throwable t) {
-
                         logger.warn(Status.fromThrowable(t).getDescription());
                     }
                 });
@@ -157,19 +159,16 @@ public interface Client {
             public void doTransact(final WalletServiceFutureStub futureStub, final Integer userID, final Float amount,
                     final CURRENCY currency, final String stats) {
                 logger.info(stats + BALANCE.name());
-
-                ListenableFuture<BalanceResponse> response = null;
-
-                response = futureStub.balance(BalanceRequest.newBuilder().setUserID(userID).build());
+                ListenableFuture<BalanceResponse> response = futureStub
+                        .balance(BalanceRequest.newBuilder().setUserID(userID).build());
                 Futures.addCallback(response, new FutureCallback<BalanceResponse>() {
                     @Override
                     public void onSuccess(BalanceResponse result) {
-                        logger.info("Balance Checked for user:{} Amount:{}", userID, buildLogLine(result));
+                        logger.info("Balance Checked for user:{} Amount:{}", userID, buildGetBalanceLogLine(result));
                     }
 
                     @Override
                     public void onFailure(Throwable t) {
-
                         logger.warn(Status.fromThrowable(t).getDescription());
                     }
                 });
@@ -180,20 +179,19 @@ public interface Client {
         public abstract void doTransact(final WalletServiceFutureStub futureStub, final Integer userID,
                 final Float amount, final CURRENCY currency, final String stats);
 
-        private static final Logger logger = LoggerFactory.getLogger(WalletClient.class);
+        private static final Logger logger = LoggerFactory.getLogger(TRANSACTION.class);
 
     }
 
     static Long getOptimizedWaitingTime(final WalletClientParams clientParams) {
-        Long defaultWaitTime = Long.valueOf(1);
-        defaultWaitTime = Long.valueOf((clientParams.getNumberOfUsers() + clientParams.getNumberOfRequests()
-                + clientParams.getNumberOfRounds()) / 3);
+        Long defaultWaitTime = Long.valueOf(DEFAULT_WAIT_TIME);
+        defaultWaitTime = Long.valueOf((clientParams.getNumberOfUsers() * clientParams.getNumberOfRequests()
+                * clientParams.getNumberOfRounds() * AVERAGE_RPC_PER_ROUND) / MEAN_FACTOR);
         return defaultWaitTime;
     }
 
     static boolean checkAmountGreaterThanZero(Float amount) {
         boolean valid = false;
-
         if (amount > 0F && amount < Float.MAX_VALUE / 2F) {
             valid = true;
         }
@@ -204,15 +202,11 @@ public interface Client {
         // For Health Check
     }
 
-    static String buildLogLine(BalanceResponse balanceResponse) {
+    static String buildGetBalanceLogLine(BalanceResponse balanceResponse) {
         StringBuilder stringBuilder = new StringBuilder();
         balanceResponse.getBalanceList().stream().forEach(balance -> {
-            stringBuilder.append(balance.getAmount()).append(balance.getCurrency().name()).append(":");
+            stringBuilder.append(balance.getAmount()).append(balance.getCurrency().name()).append(" ");
         });
         return stringBuilder.toString();
     }
-}
-
-enum STATS {
-    SUCCESS, FAILURE;
 }

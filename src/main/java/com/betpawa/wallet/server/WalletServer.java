@@ -160,7 +160,7 @@ public class WalletServer {
         }
 
         @Override
-        public void balance(BalanceRequest request, StreamObserver<BalanceResponse> responseObserver) {
+        public synchronized void balance(BalanceRequest request, StreamObserver<BalanceResponse> responseObserver) {
             logger.info("Request Recieved for UserID:{}", request.getUserID());
             try {
                 List<UserWallet> userWallets = getByUserID(request.getUserID());
