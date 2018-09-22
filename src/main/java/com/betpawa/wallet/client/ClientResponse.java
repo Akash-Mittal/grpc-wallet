@@ -39,7 +39,7 @@ public class ClientResponse {
         return execution_STATUS;
     }
 
-    public void setExecution_STATUS(CLIENT_EXECUTION_STATUS execution_STATUS) {
+    public void setExecutionStatus(CLIENT_EXECUTION_STATUS execution_STATUS) {
         this.execution_STATUS = execution_STATUS;
     }
 

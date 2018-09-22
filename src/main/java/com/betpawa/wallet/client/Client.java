@@ -1,5 +1,7 @@
 package com.betpawa.wallet.client;
 
+import java.util.concurrent.CountDownLatch;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,18 +117,24 @@ public interface Client {
 
                 ListenableFuture<DepositResponse> response = futureStub.deposit(
                         DepositRequest.newBuilder().setAmount(amount).setUserID(userID).setCurrency(currency).build());
+                final CountDownLatch latch = new CountDownLatch(1);
+
                 Futures.addCallback(response, new FutureCallback<DepositResponse>() {
                     @Override
                     public void onSuccess(DepositResponse result) {
 
                         logger.info("Deposited Succesfully", result.getCurrencyValue());
-                        clientResponse.setExecution_STATUS(CLIENT_EXECUTION_STATUS.SUCCESS);
+                        clientResponse.setExecutionStatus(CLIENT_EXECUTION_STATUS.SUCCESS);
                         clientResponse.setDepositResponse(result);
+                        latch.countDown();
+
                     }
 
                     @Override
                     public void onFailure(Throwable t) {
                         logger.warn(Status.fromThrowable(t).getDescription());
+                        latch.countDown();
+
                     }
                 });
                 return clientResponse;
@@ -142,18 +150,24 @@ public interface Client {
                 ListenableFuture<WithdrawResponse> response = null;
                 response = futureStub.withdraw(
                         WithdrawRequest.newBuilder().setUserID(userID).setAmount(amount).setCurrency(currency).build());
+                final CountDownLatch latch = new CountDownLatch(1);
+
                 Futures.addCallback(response, new FutureCallback<WithdrawResponse>() {
                     @Override
                     public void onSuccess(WithdrawResponse result) {
 
                         logger.info("Withdrawn Succesfully" + result.getBalance());
-                        clientResponse.setExecution_STATUS(CLIENT_EXECUTION_STATUS.SUCCESS);
+                        clientResponse.setExecutionStatus(CLIENT_EXECUTION_STATUS.SUCCESS);
                         clientResponse.setWithdrawResponse(result);
+                        latch.countDown();
+
                     }
 
                     @Override
                     public void onFailure(Throwable t) {
                         logger.warn(Status.fromThrowable(t).getDescription());
+                        latch.countDown();
+
                     }
                 });
                 return clientResponse;
@@ -169,17 +183,23 @@ public interface Client {
                 logger.info(stats + BALANCE.name());
                 ListenableFuture<BalanceResponse> response = futureStub
                         .balance(BalanceRequest.newBuilder().setUserID(userID).build());
+                final CountDownLatch latch = new CountDownLatch(1);
+
                 Futures.addCallback(response, new FutureCallback<BalanceResponse>() {
                     @Override
                     public void onSuccess(BalanceResponse result) {
                         logger.info("Balance Checked for user:{} Amount:{}", userID, buildGetBalanceLogLine(result));
-                        clientResponse.setExecution_STATUS(CLIENT_EXECUTION_STATUS.SUCCESS);
+                        clientResponse.setExecutionStatus(CLIENT_EXECUTION_STATUS.SUCCESS);
                         clientResponse.setBalanceResponse(result);
+                        latch.countDown();
+
                     }
 
                     @Override
                     public void onFailure(Throwable t) {
                         logger.warn(Status.fromThrowable(t).getDescription());
+                        latch.countDown();
+
                     }
                 });
                 return clientResponse;

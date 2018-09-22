@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import com.betpawa.wallet.WalletServiceGrpc;
 import com.betpawa.wallet.WalletServiceGrpc.WalletServiceFutureStub;
 import com.betpawa.wallet.client.runner.UserRunner;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.protobuf.Message;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -20,6 +22,7 @@ public class WalletClient implements Client {
     private static final Logger logger = LoggerFactory.getLogger(WalletClient.class);
     private final ManagedChannel channel;
     private final WalletServiceFutureStub futureStub;
+    private TestHelper testHelper;
 
     private AtomicLong rpcCount = new AtomicLong();
 
@@ -68,9 +71,9 @@ public class WalletClient implements Client {
         WalletClient client = null;
         try {
             logger.info("Starting client at host {} port {}", host, port);
-            Integer numberOfUsers = Integer.valueOf(props.getProperty("wallet.user", "20"));
-            Integer numberOfRequests = Integer.valueOf(props.getProperty("wallet.request", "2"));
-            Integer numberOfRounds = Integer.valueOf(props.getProperty("wallet.round", "2"));
+            Integer numberOfUsers = Integer.valueOf(props.getProperty("wallet.user", "50"));
+            Integer numberOfRequests = Integer.valueOf(props.getProperty("wallet.request", "10"));
+            Integer numberOfRounds = Integer.valueOf(props.getProperty("wallet.round", "100"));
             client = new WalletClient(host, port);
             final WalletClientParams clientParams = new WalletClientParams(numberOfUsers, numberOfRequests,
                     numberOfRounds, client.futureStub, pool);
@@ -91,6 +94,27 @@ public class WalletClient implements Client {
                 client.shutdown();
             }
         }
+    }
+
+    /**
+     * Only used for helping unit test.
+     */
+    @VisibleForTesting
+    interface TestHelper {
+        /**
+         * Used for verify/inspect message received from server.
+         */
+        void onMessage(Message message);
+
+        /**
+         * Used for verify/inspect error received from server.
+         */
+        void onRpcError(Throwable exception);
+    }
+
+    @VisibleForTesting
+    void setTestHelper(TestHelper testHelper) {
+        this.testHelper = testHelper;
     }
 
 }
