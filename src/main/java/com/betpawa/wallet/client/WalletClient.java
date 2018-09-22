@@ -16,7 +16,7 @@ import com.betpawa.wallet.client.runner.UserRunner;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 
-public class WalletClient {
+public class WalletClient implements Client {
     private static final Logger logger = LoggerFactory.getLogger(WalletClient.class);
     private final ManagedChannel channel;
     private final WalletServiceFutureStub futureStub;
@@ -52,13 +52,12 @@ public class WalletClient {
     public static void main(String[] args) {
         try {
 
-            start("192.168.99.100", 1234, System.getProperties());
-            // start("localhost", 1234, System.getProperties());
+            // start("192.168.99.100", 1234, System.getProperties());
+            start("localhost", 1234, System.getProperties());
         } catch (Exception e) {
             logger.error("Excpetion while Starting Wallet Client", e);
         } finally {
-            logger.info("Status of this Execution GOOD:" + Client.TRANSACTION.BALANCE.getGood());
-            logger.info("Status of this Execution NOTGOD:" + Client.TRANSACTION.BALANCE.getNotSoGood());
+            logger.info("Status of this Execution ");
 
         }
     }
@@ -69,9 +68,9 @@ public class WalletClient {
         WalletClient client = null;
         try {
             logger.info("Starting client at host {} port {}", host, port);
-            Integer numberOfUsers = Integer.valueOf(props.getProperty("wallet.user", "2"));
+            Integer numberOfUsers = Integer.valueOf(props.getProperty("wallet.user", "1"));
             Integer numberOfRequests = Integer.valueOf(props.getProperty("wallet.request", "1"));
-            Integer numberOfRounds = Integer.valueOf(props.getProperty("wallet.round", "10"));
+            Integer numberOfRounds = Integer.valueOf(props.getProperty("wallet.round", "3"));
             client = new WalletClient(host, port);
             final WalletClientParams clientParams = new WalletClientParams(numberOfUsers, numberOfRequests,
                     numberOfRounds, client.futureStub, pool);

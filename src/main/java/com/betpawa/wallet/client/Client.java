@@ -1,7 +1,5 @@
 package com.betpawa.wallet.client;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,14 +112,13 @@ public interface Client {
                 Futures.addCallback(response, new FutureCallback<DepositResponse>() {
                     @Override
                     public void onSuccess(DepositResponse result) {
-                        getGood().incrementAndGet();
+
                         logger.info("Deposited Succesfully", result.getCurrencyValue());
 
                     }
 
                     @Override
                     public void onFailure(Throwable t) {
-                        getNotSoGood().incrementAndGet();
 
                         logger.warn(Status.fromThrowable(t).getDescription());
                     }
@@ -142,13 +139,13 @@ public interface Client {
                 Futures.addCallback(response, new FutureCallback<WithdrawResponse>() {
                     @Override
                     public void onSuccess(WithdrawResponse result) {
-                        getGood().incrementAndGet();
+
                         logger.info("Withdrawn Succesfully" + result.getBalance());
                     }
 
                     @Override
                     public void onFailure(Throwable t) {
-                        getNotSoGood().incrementAndGet();
+
                         logger.warn(Status.fromThrowable(t).getDescription());
                     }
                 });
@@ -164,17 +161,15 @@ public interface Client {
                 ListenableFuture<BalanceResponse> response = null;
 
                 response = futureStub.balance(BalanceRequest.newBuilder().setUserID(userID).build());
-                // response.addListener(() -> rpcCount.incrementAndGet(), MoreExecutors.directExecutor());
                 Futures.addCallback(response, new FutureCallback<BalanceResponse>() {
                     @Override
                     public void onSuccess(BalanceResponse result) {
-                        getGood().incrementAndGet();
-                        logger.info("Balance Checked Succesfully" + result);
+                        logger.info("Balance Checked for user:{} Amount:{}", userID, buildLogLine(result));
                     }
 
                     @Override
                     public void onFailure(Throwable t) {
-                        getNotSoGood().incrementAndGet();
+
                         logger.warn(Status.fromThrowable(t).getDescription());
                     }
                 });
@@ -186,24 +181,6 @@ public interface Client {
                 final Float amount, final CURRENCY currency, final String stats);
 
         private static final Logger logger = LoggerFactory.getLogger(WalletClient.class);
-        private AtomicInteger good = new AtomicInteger(0);
-        private AtomicInteger notSoGood = new AtomicInteger(0);
-
-        public synchronized AtomicInteger getGood() {
-            return good;
-        }
-
-        public void setGood(AtomicInteger good) {
-            this.good = good;
-        }
-
-        public synchronized AtomicInteger getNotSoGood() {
-            return notSoGood;
-        }
-
-        public void setNotSoGood(AtomicInteger notSoGood) {
-            this.notSoGood = notSoGood;
-        }
 
     }
 
@@ -225,6 +202,14 @@ public interface Client {
 
     static void pingServer() {
         // For Health Check
+    }
+
+    static String buildLogLine(BalanceResponse balanceResponse) {
+        StringBuilder stringBuilder = new StringBuilder();
+        balanceResponse.getBalanceList().stream().forEach(balance -> {
+            stringBuilder.append(balance.getAmount()).append(balance.getCurrency().name()).append(":");
+        });
+        return stringBuilder.toString();
     }
 }
 

@@ -1,13 +1,16 @@
 package com.betpawa.wallet.server;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.betpawa.wallet.Balance;
 import com.betpawa.wallet.BalanceRequest;
 import com.betpawa.wallet.BalanceResponse;
+import com.betpawa.wallet.CURRENCY;
 import com.betpawa.wallet.DepositRequest;
 import com.betpawa.wallet.DepositResponse;
 import com.betpawa.wallet.StatusMessage;
@@ -24,7 +27,6 @@ import io.grpc.ServerBuilder;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
-import javassist.NotFoundException;
 
 public class WalletServer {
     private static final Logger logger = LoggerFactory.getLogger(WalletServer.class);
@@ -77,6 +79,7 @@ public class WalletServer {
         WalletServer server = new WalletServer(1234);
         server.start();
         server.blockUntilShutdown();
+
     }
 
     private static class WalletService extends WalletServiceImplBase implements UserWalletService {
@@ -109,7 +112,9 @@ public class WalletServer {
                 }
             } catch (BPServiceException e) {
                 responseObserver.onError(new StatusRuntimeException(e.getStatus().withDescription(e.getMessage())));
+
             } catch (Exception e) {
+                logger.error(StatusMessage.UNRECOGNIZED.name(), e);
                 responseObserver.onError(
                         new StatusRuntimeException(Status.UNKNOWN.withDescription(StatusMessage.UNRECOGNIZED.name())));
             }
@@ -146,7 +151,9 @@ public class WalletServer {
                 }
             } catch (BPServiceException e) {
                 responseObserver.onError(new StatusRuntimeException(e.getStatus().withDescription(e.getMessage())));
+
             } catch (Exception e) {
+                logger.error(StatusMessage.UNRECOGNIZED.name(), e);
                 responseObserver.onError(
                         new StatusRuntimeException(Status.UNKNOWN.withDescription(StatusMessage.UNRECOGNIZED.name())));
             }
@@ -157,21 +164,31 @@ public class WalletServer {
             logger.info("Request Recieved for UserID:{}", request.getUserID());
             try {
                 List<UserWallet> userWallets = getByUserID(request.getUserID());
+                List<Balance> balanceList = new ArrayList<>();
+
                 final StringBuilder balance = new StringBuilder();
                 userWallets.forEach(wallet -> {
+                    Balance bl = Balance.newBuilder().setAmount(wallet.getBalance())
+                            .setCurrency(CURRENCY.valueOf(wallet.getCurrency())).build();
                     balance.append(wallet.getCurrency() + ":" + wallet.getBalance());
+                    balanceList.add(bl);
                 });
                 logger.info(balance.toString());
-                responseObserver.onNext(BalanceResponse.newBuilder().build());
+                responseObserver.onNext(BalanceResponse.newBuilder().addAllBalance(balanceList).build());
                 responseObserver.onCompleted();
-            } catch (NotFoundException e) {
+            } catch (BPServiceException e) {
                 logger.warn(StatusMessage.USER_DOES_NOT_EXIST.name());
                 responseObserver.onError(new StatusRuntimeException(
                         Status.FAILED_PRECONDITION.withDescription(StatusMessage.USER_DOES_NOT_EXIST.name())));
 
+            } catch (Exception e) {
+                logger.error(StatusMessage.UNRECOGNIZED.name(), e);
+                responseObserver.onError(
+                        new StatusRuntimeException(Status.UNKNOWN.withDescription(StatusMessage.UNRECOGNIZED.name())));
             }
 
         }
 
     }
+
 }

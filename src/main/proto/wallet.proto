@@ -66,8 +66,12 @@ message BalanceRequest  {
 
 
 message BalanceResponse {
+ repeated Balance balance = 1;
+}
+
+message Balance {
   float amount = 1;
-  CURRENCY currency = 3;	
+  CURRENCY currency = 2;	
 }
 
 
