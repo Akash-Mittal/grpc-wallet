@@ -44,6 +44,7 @@ public class WalletServer {
 
     public void start() throws IOException {
         server.start();
+        UserWalletService.dbPing();
         logger.info("Server started, listening on {}", port);
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override

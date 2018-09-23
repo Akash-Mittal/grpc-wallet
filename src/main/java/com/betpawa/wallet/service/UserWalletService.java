@@ -51,4 +51,15 @@ public interface UserWalletService {
     default void update(UserWallet userWallet) {
         FACTORY.GET.userWalletRepo().update(userWallet);
     }
+
+    static void dbPing() {
+        try {
+            FACTORY.GET.userWalletRepo().getByUserID(1);
+        } catch (BPDataException e) {
+            // This is expected.
+        } catch (Exception e) {
+            throw new BPServiceException(e.getMessage(), Status.UNAVAILABLE);
+        }
+    }
+
 }
