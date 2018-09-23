@@ -221,6 +221,10 @@ public interface Client {
         return defaultWaitTime;
     }
 
+    static Long getTotalNumberOfRPCS(final WalletClientParams clientParams) {
+        return getOptimizedWaitingTime(clientParams) * MEAN_FACTOR;
+    }
+
     static boolean checkAmountGreaterThanZero(Float amount) {
         boolean valid = false;
         if (amount > 0F && amount < Float.MAX_VALUE / 2F) {
