@@ -225,14 +225,6 @@ public interface Client {
         return getOptimizedWaitingTime(clientParams) * MEAN_FACTOR;
     }
 
-    static boolean checkAmountGreaterThanZero(Float amount) {
-        boolean valid = false;
-        if (amount > 0F && amount < Float.MAX_VALUE / 2F) {
-            valid = true;
-        }
-        return valid;
-    }
-
     static void pingServer() {
         // For Health Check
     }

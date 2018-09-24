@@ -18,7 +18,6 @@ import com.betpawa.wallet.WalletServiceGrpc.WalletServiceImplBase;
 import com.betpawa.wallet.WithdrawRequest;
 import com.betpawa.wallet.WithdrawResponse;
 import com.betpawa.wallet.auto.entities.generated.UserWallet;
-import com.betpawa.wallet.client.Client;
 import com.betpawa.wallet.exception.BPServiceException;
 import com.betpawa.wallet.service.UserWalletService;
 
@@ -90,7 +89,7 @@ public class WalletServer {
         public synchronized void deposit(DepositRequest request, StreamObserver<DepositResponse> responseObserver) {
             Float balanceToADD = request.getAmount();
             try {
-                if (Client.checkAmountGreaterThanZero(balanceToADD)) {
+                if (checkAmountGreaterThanZero(balanceToADD) && checkCurrency(request.getCurrency())) {
                     Float currentBalance = Float.valueOf(0);
                     UserWallet userWallet;
 
@@ -107,9 +106,11 @@ public class WalletServer {
                     logger.info("Wallet Updated SuccessFully New Balance:{}", newBalance);
 
                 } else {
-                    logger.warn(StatusMessage.AMOUNT_SHOULD_BE_GREATER_THAN_ZERO.name());
+                    logger.warn(StatusMessage.AMOUNT_SHOULD_BE_GREATER_THAN_ZERO.name() + "OR"
+                            + StatusMessage.INVALID_CURRENCY.name());
                     responseObserver.onError(new StatusRuntimeException(Status.FAILED_PRECONDITION
-                            .withDescription(StatusMessage.AMOUNT_SHOULD_BE_GREATER_THAN_ZERO.name())));
+                            .withDescription(StatusMessage.AMOUNT_SHOULD_BE_GREATER_THAN_ZERO.name() + "OR"
+                                    + StatusMessage.INVALID_CURRENCY.name())));
                 }
             } catch (BPServiceException e) {
                 responseObserver.onError(new StatusRuntimeException(e.getStatus().withDescription(e.getMessage())));
@@ -127,9 +128,8 @@ public class WalletServer {
             logger.info("Request Recieved for UserID:{} For Amount:{}{} ", request.getUserID(), request.getAmount(),
                     request.getCurrency());
             try {
-
-                if (Client.checkAmountGreaterThanZero(request.getAmount())) {
-                    Float balanceToWithdraw = request.getAmount();
+                Float balanceToWithdraw = request.getAmount();
+                if (checkAmountGreaterThanZero(balanceToWithdraw) && checkCurrency(request.getCurrency())) {
                     UserWallet userWallet = getByUserIDCurrency(request.getUserID(), request.getCurrency(), true);
                     Float existingBalance = userWallet.getBalance();
                     if (existingBalance.compareTo(balanceToWithdraw) >= 0) {
@@ -147,8 +147,11 @@ public class WalletServer {
                                 Status.FAILED_PRECONDITION.withDescription(StatusMessage.INSUFFICIENT_BALANCE.name())));
                     }
                 } else {
+                    logger.warn(StatusMessage.AMOUNT_SHOULD_BE_GREATER_THAN_ZERO.name() + "OR"
+                            + StatusMessage.INVALID_CURRENCY.name());
                     responseObserver.onError(new StatusRuntimeException(Status.FAILED_PRECONDITION
-                            .withDescription(StatusMessage.AMOUNT_SHOULD_BE_GREATER_THAN_ZERO.name())));
+                            .withDescription(StatusMessage.AMOUNT_SHOULD_BE_GREATER_THAN_ZERO.name() + "OR"
+                                    + StatusMessage.INVALID_CURRENCY.name())));
                 }
             } catch (BPServiceException e) {
                 responseObserver.onError(new StatusRuntimeException(e.getStatus().withDescription(e.getMessage())));
@@ -188,6 +191,22 @@ public class WalletServer {
                         new StatusRuntimeException(Status.UNKNOWN.withDescription(StatusMessage.UNRECOGNIZED.name())));
             }
 
+        }
+
+        static boolean checkAmountGreaterThanZero(Float amount) {
+            boolean valid = false;
+            if (amount > 0F && amount < Float.MAX_VALUE / 2F) {
+                valid = true;
+            }
+            return valid;
+        }
+
+        static boolean checkCurrency(CURRENCY currency) {
+            boolean valid = true;
+            if (currency.equals(CURRENCY.UNRECOGNIZED)) {
+                valid = false;
+            }
+            return valid;
         }
 
     }
