@@ -43,18 +43,19 @@ The balance of the users account for each currency
 Include the database schema that is needed for the server application.
 
 ### Integration Test
-* Make a withdrawal of USD 200 for user with id 1. Must return "insufficient_funds".
-* Make a deposit of USD 100 to user with id 1.
-* Check that all balances are correct
-* Make a withdrawal of USD 200 for user with id 1. Must return "insufficient_funds".
-* Make a deposit of EUR 100 to user with id 1.
-* Check that all balances are correct
-* Make a withdrawal of USD 200 for user with id 1. Must return "insufficient_funds".
-* Make a deposit of USD 100 to user with id 1.
-* Check that all balances are correct
-* Make a withdrawal of USD 200 for user with id 1. Must return "ok".
-* Check that all balances are correct
-* Make a withdrawal of USD 200 for user with id 1. Must return "insufficient_funds".
+
+    1.  Make a withdrawal of USD 200 for user with id 1. Must return "insufficient_funds".
+    2.  Make a deposit of USD 100 to user with id 1.
+    3.  Check that all balances are correct
+    4.  Make a withdrawal of USD 200 for user with id 1. Must return "insufficient_funds".
+    5.  Make a deposit of EUR 100 to user with id 1.
+    6.  Check that all balances are correct
+    7.  Make a withdrawal of USD 200 for user with id 1. Must return "insufficient_funds".
+    8.  Make a deposit of USD 100 to user with id 1.
+    9.  Check that all balances are correct
+    10. Make a withdrawal of USD 200 for user with id 1. Must return "ok".
+    11. Check that all balances are correct
+    12. Make a withdrawal of USD 200 for user with id 1. Must return "insufficient_funds".
 
 ### Wallet Client
 * The wallet client will emulate a number of users concurrently using the wallet. 
